@@ -1,0 +1,6 @@
+{
+    "OutputDirectory": "/path/to/bids/directory",
+    "BidsConfigFile": "/path/to/bidsd_dcm2bids_config_template.json",
+    "WorkingDirectory": "/path/to/working/directory",
+    "SPMPath": "/path/to/spm"
+}

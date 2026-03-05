@@ -1,0 +1,21 @@
+[project]
+name = "GE2REC-CLIN"
+version = "1.0"
+description = "Process GE2REC data"
+authors = ["Emmanuelle Gourieux <47973414+manuegrx@users.noreply.github.com>"]
+dependencies = [
+        "argparse",
+        "json",
+        "pydicom==3.0.1",
+        "unidecode",
+        "dcm2bids>=3.1.1",
+        "pyQt5",
+        pybids,
+        nipype,
+        nilearn,
+        pandas,
+        scipy,
+        numpy,
+        matplotlib,
+        pybids
+    ]

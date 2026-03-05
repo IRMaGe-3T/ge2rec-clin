@@ -1,0 +1,44 @@
+{
+    "descriptions": [
+        {
+            "datatype": "func",
+            "suffix": "bold",
+            "custom_entities": "task-gene",
+            "criteria": {
+            	"SeriesDescription": "*_Gene_180dyn*"
+            },
+            "sidecar_changes": {
+                "TaskName": "gene"
+            }
+        },
+        {
+            "datatype": "func",
+            "suffix": "bold",
+            "custom_entities": "task-reco",
+            "criteria": {
+            	"SeriesDescription": "*_Reco_165dyn*"
+            },
+            "sidecar_changes": {
+                "TaskName": "reco"
+            }
+        },
+        {
+            "datatype": "func",
+            "suffix": "bold",
+            "custom_entities": "task-rappel",
+            "criteria": {
+            	"SeriesDescription": "*_Rappel_140dyn*"
+            },
+            "sidecar_changes": {
+                "TaskName": "gene"
+            }
+        },
+        {
+            "datatype": "anat",
+            "suffix": "T1w",
+            "criteria": {
+            	"SeriesDescription": "*T1 3D*"
+            }
+        }
+    ]
+}
