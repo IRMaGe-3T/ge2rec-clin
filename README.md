@@ -111,7 +111,7 @@ Example:
 
 4. Patient information:
 
-    Fill patient information (age, sex, pathology, pathology lateralization)
+    Fill patient information (age, sex, pathology...)
 
 5. Click the "RUN" button.
 

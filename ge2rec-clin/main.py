@@ -41,8 +41,13 @@ class ProcessingWorker(QThread):
             bids_ses = self.params["bids_ses"]
             age = self.params["age"]
             sex = self.params["sex"]
-            disease = self.params["disease"]
+            pathology = self.params["pathology"]
             lateralization = self.params["lateralization"]
+            localization = self.params["localization"]
+            hippo_sclerosis = self.params["hippo_sclerosis"]
+            brain_surgery = self.params["brain_surgery"]
+            neuropsych_assessment = self.params["neuropsych_assessment"]
+            psychiatric_assessment = self.params["psychiatric_assessment"]
             dominant_hand = self.params["dominant_hand"]
             acquisition_type = self.params["acquisition_type"]
             dir_code_path = self.params["dir_code_path"]
@@ -138,11 +143,15 @@ class ProcessingWorker(QThread):
                 "session": sess_name,
                 "age": age,
                 "sex": sex,
-                "pathology": disease,
+                "pathology": pathology,
                 "lateralization_pathology": lateralization,
+                "localization_pathology": localization,
+                "hippo_sclerosis": hippo_sclerosis,
+                "brain_surgery": brain_surgery,
+                "neuropsych_assessment": neuropsych_assessment,
+                "psychiatric_assessment": psychiatric_assessment,
                 "dominant_hand": dominant_hand,
             }
-
             # Acquisition info
             acq_info = get_acquisition_info(unzip_fmri_files, unzip_anat_file)
 
@@ -220,16 +229,22 @@ class App(QMainWindow):
     
     def launch_processing(self):
         """Launch processing"""
+     
         # Get params
         params = {
             "dicom_directory": self.dicom_directory,
             "bids_sub": self.lineEdit_bids_sub.text().strip() or "N.A.",
             "bids_ses": self.lineEdit_bids_ses.text().strip() or "N.A.",
-            "age": self.lineEdit_age.text().strip() or "N.A.",
-            "sex": self.lineEdit_sex.text().strip() or "N.A.",
-            "disease": self.lineEdit_disease.text().strip() or "N.A.",
-            "lateralization": self.lineEdit_lat.text().strip() or "N.A.",
-            "dominant_hand": self.lineEdit_hand.text().strip() or "N.A.",
+            "age": self.spinBox_age.value(), 
+            "sex": self.comboBox_sex.currentText(),
+            "dominant_hand":  self.comboBox_hand.currentText(),
+            "pathology":  self.comboBox_pathology.currentText(),
+            "lateralization":  self.comboBox_lat.currentText(),
+            "localization":  self.comboBox_localisation.currentText(),
+            "hippo_sclerosis": self.comboBox_hippo.currentText(),
+            "brain_surgery":  self.comboBox_surgery.currentText(),
+            "neuropsych_assessment":  self.comboBox_neuropsy.currentText(),
+            "psychiatric_assessment":  self.comboBox_psy.currentText(),
             "acquisition_type": self.comboBox_acquistion_type.currentText(),
             "dir_code_path": self.dir_code_path
         }

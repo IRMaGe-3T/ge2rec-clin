@@ -39,6 +39,33 @@ class ClinicalReportBuilder:
 
     # -------------------- Pages --------------------
     def page_cover(self):
+
+        def trad(value):
+            if value == "Yes":
+                new_value = "Oui"
+            elif value == "No":
+                new_value = "Non"
+            elif value == "Unknown":
+                new_value = "Non connu"
+            elif value == "Other":
+                new_value = "Autre"
+            elif value == "Left":
+                new_value = "Gauche"
+            elif value == "Right":
+                new_value = "Droit"
+            elif value == "Ambidextrous":
+                new_value = "Ambidextre"
+            elif value == "Bilateral":
+                new_value = "Bilatéral"
+            elif value == "Female":
+                new_value = "Femme" 
+            elif value == "Male":
+                new_value = "Homme"
+            else:
+                new_value = value
+
+            return new_value 
+        
         today_date = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         self.elements.append(Paragraph("<font size=50><b>GE2REC</b></font>", self.styles["Title"]))
         self.elements.append(Spacer(0 * mm, 5 * mm))
@@ -58,13 +85,23 @@ class ClinicalReportBuilder:
         self.elements.append(Spacer(0 * mm, 2 * mm))
         self.elements.append(Paragraph(f"<b>Age du patient:</b> {subj.get("age")}", self.styles["Normal"]))
         self.elements.append(Spacer(0 * mm, 1 * mm))
-        self.elements.append(Paragraph(f"<b>Sexe du patient:</b> {subj.get("sex")}", self.styles["Normal"]))
+        self.elements.append(Paragraph(f"<b>Sexe du patient:</b> {trad(subj.get("sex"))}", self.styles["Normal"]))
         self.elements.append(Spacer(0 * mm, 1 * mm))
-        self.elements.append(Paragraph(f"<b>Pathologie:</b> {subj.get("pathology")}", self.styles["Normal"]))
+        self.elements.append(Paragraph(f"<b>Main dominante:</b> {trad(subj.get("dominant_hand"))}", self.styles["Normal"]))
         self.elements.append(Spacer(0 * mm, 1 * mm))
-        self.elements.append(Paragraph(f"<b>Latéralisation de la pathologie:</b> {subj.get("lateralization_pathology")}", self.styles["Normal"]))
+        self.elements.append(Paragraph(f"<b>Pathologie:</b> {trad(subj.get("pathology"))}", self.styles["Normal"]))
         self.elements.append(Spacer(0 * mm, 1 * mm))
-        self.elements.append(Paragraph(f"<b>Main dominante:</b> {subj.get("dominant_hand")}", self.styles["Normal"]))
+        self.elements.append(Paragraph(f"<b>Latéralisation de la pathologie:</b> {trad(subj.get("lateralization_pathology"))}", self.styles["Normal"]))
+        self.elements.append(Spacer(0 * mm, 1 * mm))
+        self.elements.append(Paragraph(f"<b>Localisation de la pathologie:</b> {trad(subj.get("localization_pathology"))}", self.styles["Normal"]))
+        self.elements.append(Spacer(0 * mm, 1 * mm))
+        self.elements.append(Paragraph(f"<b>Sclérose hippocampique ?:</b> {trad(subj.get("hippo_sclerosis"))}", self.styles["Normal"]))
+        self.elements.append(Spacer(0 * mm, 1 * mm))
+        self.elements.append(Paragraph(f"<b>Chirugie du cerveau ?:</b> {trad(subj.get("brain_surgery"))}", self.styles["Normal"]))
+        self.elements.append(Spacer(0 * mm, 1 * mm))
+        self.elements.append(Paragraph(f"<b>Bilan neuropsy?:</b> {trad(subj.get("neuropsych_assessment"))}", self.styles["Normal"]))
+        self.elements.append(Spacer(0 * mm, 1 * mm))
+        self.elements.append(Paragraph(f"<b>Bilan psychiatrique?:</b> {trad(subj.get("psychiatric_assessment"))}", self.styles["Normal"]))
         self.elements.append(Spacer(0 * mm, 5 * mm))
         self.elements.append(Paragraph(f"<u><b>Informations IRM</b></u>", self.styles["Normal"]))
         self.elements.append(Spacer(0 * mm, 2 * mm))
