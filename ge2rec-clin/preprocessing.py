@@ -31,7 +31,8 @@ def create_preproc_workflow(
     slice_order,
     ref_slice,
     voxel_size_fmri,
-    spm_path
+    spm_path,
+    name
 ):
     """
     Create a Nipype workflow for SPM preprocessing.
@@ -52,9 +53,12 @@ def create_preproc_workflow(
         Reference slice for slice timing.
     voxel_size : list of 3 float
          3-element list representing the voxel sizes (in mm) of the written normalised functional images
+    spm_path:
+
+    name : 
     """
 
-    wf = Workflow(name="spm_preprocessing")
+    wf = Workflow(name=f"spm_preprocessing_{name}")
     wf.base_dir = working_dir
 
     # ---------------------------------------------------------------------
@@ -285,7 +289,7 @@ def sort_by_task(file_list):
     return sorted(file_list, key=get_task_index)
 
 
-def run_preprocessing(anat_file, fmri_files, preproc_directory, working_dir, acquisition_type, spm_path, acq_info):
+def run_preprocessing(anat_file, fmri_files, preproc_directory, working_dir, acquisition_type, spm_path, acq_info, name):
     logger.info("Launch preprocessing ")
 
     repetition_time = acq_info["general"]["tr"]
@@ -304,7 +308,8 @@ def run_preprocessing(anat_file, fmri_files, preproc_directory, working_dir, acq
         slice_order=slice_order,
         ref_slice=ref_slice,
         voxel_size_fmri = voxel_size_round,
-        spm_path=spm_path
+        spm_path=spm_path, 
+        name=name
     )
 
     # Run workflow
@@ -313,7 +318,7 @@ def run_preprocessing(anat_file, fmri_files, preproc_directory, working_dir, acq
         working_dir=wf.base_dir,
         out_dir=os.path.dirname(preproc_directory)
     )
-    logger.info("Preprocessing done")
+    logger.info(f"Preprocessing done for {name}")
 
 
 

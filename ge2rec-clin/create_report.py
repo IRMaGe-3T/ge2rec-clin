@@ -8,9 +8,10 @@ from useful import plot_slice_planes, plot_realignment_parameters
 from lateralization import get_lateralization_curves
 
 
-def create_report(analysis_directory, subject_info, acq_info, fmri_files, anat_file):
+def create_report(analysis_directory, subject_info, acq_info, fmri_files, anat_file, name):
 
     inputs = {
+        "name": name,
         "subject_info" :subject_info,
         "acq_info": acq_info
     }
@@ -19,7 +20,7 @@ def create_report(analysis_directory, subject_info, acq_info, fmri_files, anat_f
     os.makedirs(out_dir, exist_ok=True)
     report_path = os.path.join(
         analysis_directory,
-        f"sub-{subject_info["subject"]}_ses-{subject_info["session"]}_ge2rec-clin_report.pdf"
+        f"sub-{subject_info["subject"]}_ses-{subject_info["session"]}_{name}_report.pdf"
     )
 
     # Generate images and text for report 
@@ -94,10 +95,14 @@ def create_report(analysis_directory, subject_info, acq_info, fmri_files, anat_f
         
         func_name = os.path.basename(func_run).split('.')[0]
         num = "0001"
-        if task in ["gene", "reco"]:
-            num ="0002"
+        if task in ["reco"]:
+             num ="0002"
+        name_task = task
+        if "run" in func_name:
+            nb = re.search(r"run-([^_]+)",func_name).group(1)
+            name_task += f"_run-{nb}"
         spmT = os.path.join(
-            os.path.dirname(func_run).replace("raw",f"stats_{task}"),
+            os.path.dirname(func_run).replace("raw",f"stats_{name_task}"),
             f"spmT_{num}.nii"
         )
         
@@ -105,8 +110,8 @@ def create_report(analysis_directory, subject_info, acq_info, fmri_files, anat_f
             os.path.dirname(func_run).replace("raw","spm_preprocessing"),
             "realign", "rp_" + func_name + ".txt"
         )
-        tr =  acq_info[task]["tr"]
-        voxel_size = acq_info[task]["voxel_size"]
+        tr =  acq_info[name_task]["tr"]
+        voxel_size = acq_info[name_task]["voxel_size"]
         # Raw fmri
         fmri_ax = plot_slice_planes(
             data_1=func_run,
@@ -209,27 +214,69 @@ def create_report(analysis_directory, subject_info, acq_info, fmri_files, anat_f
             # Lateralization
             out_png_images = get_lateralization_curves(spmT, analysis_directory)
             inputs["lateralization"] =  out_png_images
-
+            activation = "activation"
         elif task == "reco":
             title = "Mémoire reconnaissance - Carte Statistique"
             desc = "Activation cérébrales pour la tâche de mémoire (reconnaissance "\
                 "des mots entendus à la tâche précédente à partir d'image):"
+            activation = "reconnaisance"
             #performance
         elif task == "rappel":
             title = "Mémoire rappel - Carte Statistique"
             desc =  "Activation cérébrales pour la tâche de rappel libre" \
                     "(reconnaissance des mots entendus lors de la première tâche "\
                     "à partir du son et générartion de la même phrase):"
+            activation = "rappel"
+        elif task == "langAud":
+            title = "IRMf de langage (stimulation auditive)- Carte Statistique"
+            desc = "Activation cérébrale pour la tâche de langage (stimulation auditive)"
+            activation = "langage"
+        elif task == "langVis":
+            title = "IRMf de langage (stimulation visuelle) - Carte Statistique"
+            desc = "Activation cérébrale pour la tâche de langage (stimulation visuelle)"
+            activation = "langage"
+        elif task == "lang":
+            title = "IRMf de langage - Carte Statistique"
+            desc = "Activation cérébrale pour la tâche de langage"
+            activation = "langage"
+        elif task == "mainD":
+            title = "IRMf moteur (main droite) - Carte Statistique"
+            desc = "Activation cérébrale pour la tâche motrice"
+            activation = "moteur"
+        elif task == "mainG":
+            title = "IRMf moteur (main gauche) - Carte Statistique"
+            desc = "Activation cérébrale pour la tâche motrice"
+            activation = "moteur"
+        elif task == "piedD":
+            title = "IRMf moteur (pied droit) - Carte Statistique"
+            desc = "Activation cérébrale pour la tâche motrice"
+            activation = "moteur"
+        elif task == "piedG":
+            title = "IRMf moteur (pied gauche) - Carte Statistique"
+            desc = "Activation cérébrale pour la tâche motrice"
+            activation = "moteur"
+        elif task == "lèvre":
+            title = "IRMf moteur (levres) - Carte Statistique"
+            desc = "Activation cérébrale pour la tâche motrice"
+            activation = "moteur"
+        elif task == "clin":
+            if "run" in func_name:
+                nb = re.search(r"run-([^_]+)",func_name).group(1)
+            title = f"IRMf de langage ou moteur - Carte Statistique ({nb})"
+            desc = "Activation cérébrale pour une tâche motrice (main, pied ou lèvres) ou pour une tâche de langage"
+            activation = "clinique"
 
         # QC 
-        inputs[f"{task}_info"]=  {
+        inputs[f"{name_task}_info"]=  {
+            "name": name_task,
+            "activation": activation, 
             "image": fmri_ax,
             "carpet": carpet_img,
             "rot": out_file_rot,
             "tra": out_file_tra,
             "check": im_check
         }
-        inputs[f"{task}_stats"]=  {
+        inputs[f"{name_task}_stats"]=  {
             "axial": stats_ax,
             "cor": stats_cor,
             "sag": stats_sag,

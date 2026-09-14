@@ -234,9 +234,9 @@ def copy_and_unzip_niigz(input_files, output_dir, overwrite=False):
                 copied_json_file = copied_file.replace(".nii.gz", ".json")
                 shutil.copy2(json_path, copied_json_file)
             # Copy of .tsv
-            tsv_path = file_path.replace(".nii.gz", ".tsv")
+            tsv_path = file_path.replace("bold.nii.gz", "events.tsv")
             if os.path.exists(tsv_path):
-                copied_tsv_file = copied_file.replace(".nii.gz", ".tsv")
+                copied_tsv_file = copied_file.replace("bold.nii.gz", "events.tsv")
                 shutil.copy2(tsv_path, copied_tsv_file)
 
         # Define uncompressed filename

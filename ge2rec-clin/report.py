@@ -2,7 +2,7 @@ from reportlab.lib.pagesizes import A4
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Image, Table, TableStyle, PageBreak, HRFlowable
 from reportlab.lib import colors
-from reportlab.lib.units import inch, mm
+from reportlab.lib.units import mm
 from reportlab.lib.enums import TA_CENTER, TA_JUSTIFY
 from datetime import datetime
 
@@ -33,12 +33,12 @@ class ClinicalReportBuilder:
     def _header_footer(self, canvas, doc):
         canvas.saveState()
         canvas.setFont("Helvetica", 8)
-        canvas.drawString(40, 820, "GE2REC-CLIN rapport")
+        canvas.drawString(40, 820, f"{self.inputs.get(f"name")}_rapport")
         canvas.drawRightString(550, 820, f"{doc.page}")
         canvas.restoreState()
 
     # -------------------- Pages --------------------
-    def page_cover(self):
+    def page_cover(self, tittle):
 
         def trad(value):
             if value == "Yes":
@@ -46,7 +46,7 @@ class ClinicalReportBuilder:
             elif value == "No":
                 new_value = "Non"
             elif value == "Unknown":
-                new_value = "Non connu"
+                new_value = "Non renseigné"
             elif value == "Other":
                 new_value = "Autre"
             elif value == "Left":
@@ -67,9 +67,9 @@ class ClinicalReportBuilder:
             return new_value 
         
         today_date = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        self.elements.append(Paragraph("<font size=50><b>GE2REC</b></font>", self.styles["Title"]))
-        self.elements.append(Spacer(0 * mm, 5 * mm))
-        self.elements.append(Paragraph("<font size=50><b>Langage et mémoire</b></font>", self.styles["Title"]))
+        self.elements.append(Paragraph(f"<font size=50><b>IRM fonctionnelle</b></font>", self.styles["Title"]))
+        self.elements.append(Spacer(0 * mm, 15 * mm))
+        self.elements.append(Paragraph(f"<font size=30><b>{tittle}</b></font>", self.styles["Title"]))
         self.elements.append(Spacer(0 * mm, 15* mm))
         self.elements.append(HRFlowable(width="100%", thickness=1, color=colors.grey))
         self.elements.append(Spacer(0 * mm, 12 * mm))
@@ -95,13 +95,13 @@ class ClinicalReportBuilder:
         self.elements.append(Spacer(0 * mm, 1 * mm))
         self.elements.append(Paragraph(f"<b>Localisation de la pathologie:</b> {trad(subj.get("localization_pathology"))}", self.styles["Normal"]))
         self.elements.append(Spacer(0 * mm, 1 * mm))
-        self.elements.append(Paragraph(f"<b>Sclérose hippocampique ?:</b> {trad(subj.get("hippo_sclerosis"))}", self.styles["Normal"]))
+        self.elements.append(Paragraph(f"<b>Sclérose hippocampique ?</b> {trad(subj.get("hippo_sclerosis"))}", self.styles["Normal"]))
         self.elements.append(Spacer(0 * mm, 1 * mm))
-        self.elements.append(Paragraph(f"<b>Chirugie du cerveau ?:</b> {trad(subj.get("brain_surgery"))}", self.styles["Normal"]))
+        self.elements.append(Paragraph(f"<b>Chirugie du cerveau ?</b> {trad(subj.get("brain_surgery"))}", self.styles["Normal"]))
         self.elements.append(Spacer(0 * mm, 1 * mm))
-        self.elements.append(Paragraph(f"<b>Bilan neuropsy?:</b> {trad(subj.get("neuropsych_assessment"))}", self.styles["Normal"]))
+        self.elements.append(Paragraph(f"<b>Bilan neuropsy?</b> {trad(subj.get("neuropsych_assessment"))}", self.styles["Normal"]))
         self.elements.append(Spacer(0 * mm, 1 * mm))
-        self.elements.append(Paragraph(f"<b>Bilan psychiatrique?:</b> {trad(subj.get("psychiatric_assessment"))}", self.styles["Normal"]))
+        self.elements.append(Paragraph(f"<b>Bilan psychiatrique?</b> {trad(subj.get("psychiatric_assessment"))}", self.styles["Normal"]))
         self.elements.append(Spacer(0 * mm, 5 * mm))
         self.elements.append(Paragraph(f"<u><b>Informations IRM</b></u>", self.styles["Normal"]))
         self.elements.append(Spacer(0 * mm, 2 * mm))
@@ -110,7 +110,7 @@ class ClinicalReportBuilder:
         self.elements.append(Paragraph(f"<b>Machine IRM:</b> {acq["general"]["mri"]}", self.styles["Normal"]))
         self.elements.append(Spacer(0 * mm, 1 * mm))
         self.elements.append(Paragraph(f"<b>Version logicielle IRM:</b> {acq["general"]["soft"]}", self.styles["Normal"]))
-        self.elements.append(Spacer(0 * mm, 80 * mm))
+        self.elements.append(Spacer(0 * mm, 60 * mm))
         self.elements.append(HRFlowable(width="100%", thickness=1, color=colors.grey))
         self.elements.append(Spacer(0 * mm, 5 * mm))
         self.elements.append(Paragraph("<b>DECHARGE DE RESPONSABILITE:</b>", self.styles["Normal"]))
@@ -152,20 +152,34 @@ class ClinicalReportBuilder:
         "existe de faux positifs. Il est fortement conseillé de "\
         "prendre en compte un seuil supérieur à 3. </i>"
         self.elements.append(Paragraph(desc, self.styles["Normal"]))
-        self.elements.append(Spacer(0 * mm, 3 * mm))
+        self.elements.append(Spacer(0 * mm, 10 * mm))
         desc = {
-            "temporal": "temporale",
-            "frontal": "frontale"
+            "temporal": "Temporal part",
+            "frontal": "Frontal part",
+            "middle_frontal_gyrus": "HardvardOxford - Middle Frontal Gyrus",
+            "inferior_frontal_gyrus_triangularis": "HardvardOxford - Inferior Frontal Gyrus, pars triangularis",
+            "inferior_frontal_gyrus_opercularis": "HardvardOxford - Inferior Frontal Gyrus, pars opercularis",
+            "superior_temporal_gyrus_anterior": "HardvardOxford - Superior Temporal Gyrus, anterior division",
+            "superior_temporal_gyrus_posterior": "HardvardOxford - Superior Temporal Gyrus, posterior division",
+            "middle_temporal_gyrus_temporooccipital": "HardvardOxford - Middle Temporal Gyrus, temporooccipital part",
+            "inferior_temporal_gyrus_anterior": "HardvardOxford - Inferior Temporal Gyrus, anterior division",
+            "inferior_tempotal_gyrus_posterior": "HardvardOxford - Inferior Temporal Gyrus, posterior division"
         }
+        i = 0
         for roi in list(png_images_dic.keys()):
-            self.elements.append(Paragraph(f"<b>Région {desc[roi]}:</b>", self.styles["Normal"]))
-            self.elements.append(Spacer(0 * mm, 1 * mm))
+            i += 1
+            message = Paragraph(f"<b>Région {desc[roi]}:</b>", self.styles["Normal"])
             im = Image(png_images_dic[roi], 152 * mm, 77 * mm)
             im.hAlign = "CENTER"
-            self.elements.append(im)
-            self.elements.append(Spacer(0 * mm, 3 * mm))
+            table = [[message], [im]]
+            t = Table(table, colWidths=[160 * mm], rowHeights=[None, 85 * mm])  
+            t.setStyle(TableStyle([("VALIGN", (0, 0), (-1, -1), "MIDDLE")]))
+            t.hAlign = "LEFT"
+            self.elements.append(t)
+            self.elements.append(Spacer(0 * mm, 10 * mm))
+            if i % 2 ==0 and i != len(list(png_images_dic.keys())):
+                self.elements.append(PageBreak())
        
-        self.elements.append(Spacer(0 * mm, 3 * mm))
         desc = "<i><b>Réference</b>: LI toolbox - Wilke, Marko, and Karen Lidzba. "\
         "'LI-Tool: A New Toolbox to Assess Lateralization in Functional MR-Data.' Journal of Neuroscience Methods "\
         "163, no. 1 (June 15, 2007): 128–36. https://doi.org/10.1016/j.jneumeth.2007.01.026."\
@@ -188,7 +202,7 @@ class ClinicalReportBuilder:
         self.elements.append(PageBreak())
 
 
-    def page_tasks_description(self):
+    def page_tasks_description_ge2rec(self):
         self.elements.append(Paragraph("Protocole GE2REC - Informations", self.styles["Title"]))
         self.elements.append(Spacer(0 * mm, 5 * mm))
 
@@ -265,6 +279,39 @@ class ClinicalReportBuilder:
         )
         self.elements.append(PageBreak())
 
+
+    def page_tasks_description_clin(self):
+        self.elements.append(Paragraph("Protocole IRM fonctionnelle clinique - Informations", self.styles["Title"]))
+        self.elements.append(Spacer(0 * mm, 5 * mm))
+
+        self.elements.append(Spacer(0 * mm, 4 * mm))
+        self.elements.append(
+            Paragraph(
+                "<font size=12 > <b> Langage – "\
+                "Génération de phrases </b><br/>"\
+                "Il s'agit d'une séquence en bloc de génération de "\
+                "phrases avec encodage implicite."\
+                "Les sujets écoutent des mots à travers un casque (ou en cas de problème auditif voient des mots affichés à l'écran) et doivent "\
+                "générer des phrases."\
+                "</font> ",\
+                self.styles["Justify"]
+            )
+        )
+
+        self.elements.append(Spacer(0 * mm, 4 * mm))
+        self.elements.append(
+            Paragraph(
+                "<font size=12 > <b> Moteur"\
+                "</b><br/>"\
+                "Séquence en bloc avec mouvements soit du pied ou de la man (gauche ou droit) ou mouvement des lèvres. "\
+                "</font> ",
+                self.styles["Normal"],
+            )
+        )
+        
+        self.elements.append(PageBreak())
+
+
     def page_t1_info(self):
         qc = self.inputs.get(f"t1_qc")
         if not qc:
@@ -288,18 +335,12 @@ class ClinicalReportBuilder:
         self.elements.append(Image(qc["sag"],width=177 * mm, height=80 * mm))
         self.elements.append(PageBreak())
 
-    def pages_irmf_info(self,task):
+    def pages_irmf_info(self, task):
         qc = self.inputs.get(f"{task}_info")
         if not qc:
             return
-        info = self.inputs["acq_info"]
-        names = {
-            "gene": "génération",
-            "rappel": "rappel",
-            "reco": "reconnaisance"
-        }
-        
-        self.elements.append(Paragraph(f"<font size=16 > <b>IRMf tâche de {names[task]} - Contrôle qualité </b> </font>", self.styles["Normal"]))
+        info = self.inputs["acq_info"]        
+        self.elements.append(Paragraph(f"<font size=16 > <b>IRM fonctionnelle {task} ({qc["activation"]}) - Contrôle qualité </b> </font>", self.styles["Normal"]))
         self.elements.append(Spacer(0 * mm, 3 * mm))
         self.elements.append(Paragraph("<b>Paramètres d'acquisition: </b>:", self.styles["Normal"]))
         self.elements.append(Spacer(0 * mm, 1 * mm))
@@ -338,16 +379,31 @@ class ClinicalReportBuilder:
         self.elements.append(PageBreak())
 
     def build(self):
-        self.page_cover()
-        for task in ["gene","reco","rappel"]:
-            if task == "reco":
+        list_task = [v['name'] for v in self.inputs.values() if 'name' in v]
+        
+        ge2rec = False
+        clinic = False
+        tittle = ""
+        if "reco" in list_task:
+            ge2rec = True
+            tittle += "GE2REC (langage et mémoire)"
+        if any("clin" in x for x in list_task) or any("lang" in x for x in list_task) or any("mot" in x for x in list_task):
+            clinic = True
+            tittle += "clinique (langage et/ou moteur)"
+
+        self.page_cover(tittle)
+        for task in list_task:
+            if "reco" in task:
                 self.page_task_performance()
             self.page_stats(task)
-            if task == "gene":
-                self.page_lateralization()
-        self.page_tasks_description()
+            if "gene" in task:
+                self.page_lateralization()  
+        if ge2rec:
+            self.page_tasks_description_ge2rec()
+        if clinic:
+            self.page_tasks_description_clin()
         self.page_t1_info()
-        for task in ["gene","reco","rappel"]:
+        for task in list_task:
             self.pages_irmf_info(task)
         # Create PDF
         self.doc.build(self.elements, onFirstPage=self._header_footer, onLaterPages=self._header_footer)

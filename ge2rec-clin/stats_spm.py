@@ -53,6 +53,9 @@ def build_session_info_single_run(
         "gene": ["GENE", "CONTROL"],
         "reco":  ["OLD", "CONTROL", "NEW"],
         "rappel":  ["RAPPEL"],
+        "langVis": ["LANGAGE"],
+        "langAud": ["LANGAGE"],
+        "clin": ["CLIN"]
     }
 
     if not os.path.exists(events_tsv):
@@ -101,7 +104,6 @@ def build_session_info_single_run(
         "hpf": hpf
     }
 
-    print(session_dict)
     return [session_dict]
 
 
@@ -226,7 +228,7 @@ def run_stats(fmri_files, out_directory, working_dir, acq_info):
     for func_run in fmri_files:
         func_name = os.path.basename(func_run).split('.')[0]
         tr = acq_info["general"]["tr"]
-        events_tsv = func_run.replace("nii.gz", "tsv").replace("nii", "tsv")
+        events_tsv = func_run.replace("bold.nii.gz", "events.tsv").replace("bold.nii", "events.tsv")
         preproc_func_run = os.path.join(
             os.path.dirname(func_run).replace("raw","spm_preprocessing"), "smooth", "swar" + func_name +".nii"
         )
@@ -247,9 +249,7 @@ def run_stats(fmri_files, out_directory, working_dir, acq_info):
             orth=1,
             hpf=128
         )
-        lateralization = False
         if task_name == "gene":
-            lateralization = True
             contrast_definitions = [
                 {
                     "name": "GENE-CONTROL",
@@ -288,11 +288,36 @@ def run_stats(fmri_files, out_directory, working_dir, acq_info):
                     "weights": [1]
                 }
             ]
+        elif task_name in ["langAud", "langVis"]:
+            contrast_definitions = [
+                {
+                    "name": "LANG",
+                    "type": "T",
+                    "conditions": ["LANGAGE"],
+                    "weights": [1]
+                }
+            ]
+        elif task_name in ["clin"]:
+            contrast_definitions = [
+                {
+                    "name": "CLIN",
+                    "type": "T",
+                    "conditions": ["CLIN"],
+                    "weights": [1]
+                }
+            ]
+
 
         contrasts = build_contrasts(contrast_definitions)
 
+        name = "stats_" + task_name
+
+        if "run" in func_name:
+            nb = re.search(r"run-([^_]+)",func_name).group(1)
+            name += f"_run-{nb}"
+
         wf = create_stats_workflow(
-            name="stats_" + task_name,
+            name=name,
             output_dir=out_directory,
             working_dir=working_dir,
             func_runs=preproc_func_run,

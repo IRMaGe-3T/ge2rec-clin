@@ -5,7 +5,7 @@
             "suffix": "bold",
             "custom_entities": "task-gene",
             "criteria": {
-            	"SeriesDescription": "*_Gene_180dyn*"
+            	"SeriesDescription": "*Gene_141dyn*"
             },
             "sidecar_changes": {
                 "TaskName": "gene"
@@ -16,7 +16,7 @@
             "suffix": "bold",
             "custom_entities": "task-reco",
             "criteria": {
-            	"SeriesDescription": "*_Reco_165dyn*"
+            	"SeriesDescription": "*Reco_166dyn*"
             },
             "sidecar_changes": {
                 "TaskName": "reco"
@@ -27,10 +27,43 @@
             "suffix": "bold",
             "custom_entities": "task-rappel",
             "criteria": {
-            	"SeriesDescription": "*_Rappel_140dyn*"
+            	"SeriesDescription": "*Rappel_141dyn*"
             },
             "sidecar_changes": {
                 "TaskName": "gene"
+            }
+        },
+        {
+            "datatype": "func",
+            "suffix": "bold",
+            "custom_entities": "task-langAud",
+            "criteria": {
+            	"SeriesDescription": "*Clin_Auditif*"
+            },
+            "sidecar_changes": {
+                "TaskName": "langAud"
+            }
+        },
+        {
+            "datatype": "func",
+            "suffix": "bold",
+            "custom_entities": "task-langVis",
+            "criteria": {
+            	"SeriesDescription": "*Clin_Visuel*"
+            },
+            "sidecar_changes": {
+                "TaskName": "langVis"
+            }
+        },
+        {
+            "datatype": "func",
+            "suffix": "bold",
+            "custom_entities": "task-clin",
+            "criteria": {
+            	"SeriesDescription": "BOLD_52sl_96TRs"
+            },
+            "sidecar_changes": {
+                "TaskName": "clin"
             }
         },
         {

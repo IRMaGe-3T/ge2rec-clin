@@ -31,18 +31,26 @@ def lateralization_index_iter_curves(
 
     """
     vol_data = np.asarray(nib.load(in_file).dataobj)
-    vol_mask = np.asarray(nib.load(mask).dataobj)
+    vol_mask_img = nib.load(mask)
+    vol_mask = np.asarray(vol_mask_img.dataobj)
     vol_mask_right = np.asarray(nib.load(mask_right).dataobj)
     vol_mask_left = np.asarray(nib.load(mask_left).dataobj)
 
     if (
-        (vol_mask_left.shape[0] != vol_data.shape[0])
-        or (vol_mask_left.shape[1] != vol_data.shape[1])
-        or (vol_mask_left.shape[2] != vol_data.shape[2])
+        (vol_mask.shape[0] != vol_data.shape[0])
+        or (vol_mask.shape[1] != vol_data.shape[1])
+        or (vol_mask.shape[2] != vol_data.shape[2])
     ):
         # Resample volume
-        new_data = resample_to_img(in_file, mask_left, interpolation="linear")
+        new_data = resample_to_img(in_file, mask, interpolation="linear")
         vol_data_new = new_data.dataobj
+        # new_img = nib.Nifti1Image(
+        #     vol_data_new,
+        #     vol_mask_img.affine,
+        #     vol_mask_img.header
+        # )
+        # out = in_file.replace(".nii", f"_{mask.split('/')[-1].replace(".nii","")}_resampled.nii")
+        # nib.save(new_img, out)
     else:
         vol_data_new = vol_data
 
@@ -185,15 +193,26 @@ def get_lateralization_curves(spmT_file, out_dir):
     name = os.path.dirname(spmT_file).split('/')[-1] + "_" + os.path.basename(spmT_file).split('.')[0]
     out_png_images = {}
     sources_rois_dir = os.path.join(
-            os.path.dirname(os.path.dirname(__file__)), "ROIs_LI-toolbox"
+            os.path.dirname(os.path.dirname(__file__)), "ROIs"
         )
  
-    mask_right = os.path.join(sources_rois_dir, "LI-right.nii")
-    mask_left = os.path.join(sources_rois_dir, "LI-left.nii")
-    rois = ["temporal", "frontal"]
+    mask_right = os.path.join(sources_rois_dir, "LI-toolbox", "LI-right.nii")
+    mask_left = os.path.join(sources_rois_dir, "LI-toolbox", "LI-left.nii")
+    rois = {
+        "temporal": os.path.join(sources_rois_dir, "LI-toolbox", "LI-temporal-mask.nii"), 
+        "frontal" : os.path.join(sources_rois_dir, "LI-toolbox", "LI-frontal-mask.nii"),
+        "middle_frontal_gyrus": os.path.join(sources_rois_dir, "HardvardOxford", "HarvardOxford-cort-maxprob-thr25-2mm_3.nii"),
+        "inferior_frontal_gyrus_triangularis": os.path.join(sources_rois_dir, "HardvardOxford", "HarvardOxford-cort-maxprob-thr25-2mm_4.nii"),
+        "inferior_frontal_gyrus_opercularis": os.path.join(sources_rois_dir, "HardvardOxford", "HarvardOxford-cort-maxprob-thr25-2mm_5.nii"),
+        "superior_temporal_gyrus_anterior": os.path.join(sources_rois_dir, "HardvardOxford", "HarvardOxford-cort-maxprob-thr25-2mm_8.nii"),
+        "superior_temporal_gyrus_posterior": os.path.join(sources_rois_dir, "HardvardOxford", "HarvardOxford-cort-maxprob-thr25-2mm_9.nii"),
+        "middle_temporal_gyrus_temporooccipital": os.path.join(sources_rois_dir, "HardvardOxford", "HarvardOxford-cort-maxprob-thr25-2mm_12.nii"),
+        "inferior_temporal_gyrus_anterior": os.path.join(sources_rois_dir, "HardvardOxford", "HarvardOxford-cort-maxprob-thr25-2mm_13.nii"),
+        "inferior_tempotal_gyrus_posterior": os.path.join(sources_rois_dir, "HardvardOxford", "HarvardOxford-cort-maxprob-thr25-2mm_14.nii")
+    }
 
-    for roi in rois:
-        mask = os.path.join(sources_rois_dir, f"LI-{roi}-mask.nii")
+    for roi in list(rois.keys()):
+        mask = rois[roi]
         out_png = os.path.join(out_dir_LI, f"{name}_LI_{roi}.png")
         out_png_images[roi] = out_png
         lateralization_index_iter_curves(

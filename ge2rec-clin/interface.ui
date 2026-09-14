@@ -37,7 +37,7 @@
        </font>
       </property>
       <property name="text">
-       <string>GE2REC - CLINIQUE</string>
+       <string>IRM fonctionnelle - CLINIQUE (GE2REC, langage et moteur)</string>
       </property>
       <property name="alignment">
        <set>Qt::AlignCenter</set>
@@ -271,6 +271,9 @@
             <property name="maximum">
              <number>120</number>
             </property>
+            <property name="value">
+             <number>30</number>
+            </property>
            </widget>
           </item>
           <item row="1" column="0">
@@ -282,6 +285,11 @@
           </item>
           <item row="1" column="1">
            <widget class="QComboBox" name="comboBox_sex">
+            <item>
+             <property name="text">
+              <string>Unknown</string>
+             </property>
+            </item>
             <item>
              <property name="text">
               <string>Female</string>
@@ -310,6 +318,11 @@
            <widget class="QComboBox" name="comboBox_hand">
             <item>
              <property name="text">
+              <string>Unknown</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
               <string>Right</string>
              </property>
             </item>
@@ -321,11 +334,6 @@
             <item>
              <property name="text">
               <string>Ambidextrous</string>
-             </property>
-            </item>
-            <item>
-             <property name="text">
-              <string>Unknown</string>
              </property>
             </item>
            </widget>
@@ -348,6 +356,16 @@
           </item>
           <item row="0" column="1">
            <widget class="QComboBox" name="comboBox_pathology">
+           <item>
+             <property name="text">
+              <string>Unknown</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>Healthy participant</string>
+             </property>
+            </item>
             <item>
              <property name="text">
               <string>Epilepsy</string>
@@ -361,11 +379,6 @@
             <item>
              <property name="text">
               <string>Stroke</string>
-             </property>
-            </item>
-            <item>
-             <property name="text">
-              <string>Healthy participant</string>
              </property>
             </item>
             <item>
@@ -386,6 +399,11 @@
            <widget class="QComboBox" name="comboBox_lat">
             <item>
              <property name="text">
+              <string>Unknown</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
               <string>Left</string>
              </property>
             </item>
@@ -399,11 +417,6 @@
               <string>Bilateral</string>
              </property>
             </item>
-            <item>
-             <property name="text">
-              <string>Unknown</string>
-             </property>
-            </item>
            </widget>
           </item>
           <item row="2" column="0">
@@ -415,6 +428,11 @@
           </item>
           <item row="2" column="1">
            <widget class="QComboBox" name="comboBox_localisation">
+            <item>
+             <property name="text">
+              <string>Unknown</string>
+             </property>
+            </item>
             <item>
              <property name="text">
               <string>Temporal</string>
@@ -440,11 +458,6 @@
               <string>Generalized</string>
              </property>
             </item>
-            <item>
-             <property name="text">
-              <string>Unknown</string>
-             </property>
-            </item>
            </widget>
           </item>
           <item row="3" column="0">
@@ -458,17 +471,17 @@
            <widget class="QComboBox" name="comboBox_hippo">
             <item>
              <property name="text">
+              <string>Unknown</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
               <string>No</string>
              </property>
             </item>
             <item>
              <property name="text">
               <string>Yes</string>
-             </property>
-            </item>
-            <item>
-             <property name="text">
-              <string>Unknown</string>
              </property>
             </item>
            </widget>
@@ -493,17 +506,17 @@
            <widget class="QComboBox" name="comboBox_surgery">
             <item>
              <property name="text">
+              <string>Unknown</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
               <string>No</string>
              </property>
             </item>
             <item>
              <property name="text">
               <string>Yes</string>
-             </property>
-            </item>
-            <item>
-             <property name="text">
-              <string>Unknown</string>
              </property>
             </item>
            </widget>
@@ -519,17 +532,17 @@
            <widget class="QComboBox" name="comboBox_neuropsy">
             <item>
              <property name="text">
+              <string>Unknown</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
               <string>No</string>
              </property>
             </item>
             <item>
              <property name="text">
               <string>Yes</string>
-             </property>
-            </item>
-            <item>
-             <property name="text">
-              <string>Unknown</string>
              </property>
             </item>
            </widget>
@@ -545,17 +558,17 @@
            <widget class="QComboBox" name="comboBox_psy">
             <item>
              <property name="text">
+              <string>Unknown</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
               <string>No</string>
              </property>
             </item>
             <item>
              <property name="text">
               <string>Yes</string>
-             </property>
-            </item>
-            <item>
-             <property name="text">
-              <string>Unknown</string>
              </property>
             </item>
            </widget>

@@ -37,6 +37,9 @@ def get_acquisition_info(fmri_files, anat_file):
 
     for fmri_file in fmri_files:
         task = re.search(r"task-([^_]+)", fmri_file).group(1)
+        if "run" in fmri_file:
+            nb = re.search(r"run-([^_]+)", fmri_file).group(1)
+            task += f"_run-{nb}"
         json_path = fmri_file.replace("nii.gz", "json").replace("nii", "json")
         tr = get_value_json(json_path, "RepetitionTime")
         all_repetition_time.append(tr)

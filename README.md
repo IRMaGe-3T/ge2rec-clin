@@ -74,8 +74,8 @@ Example:
 
 ```bash
 {
-    "OutputDirectory": "/path/to/bids/directory",
-    "BidsConfigFile": "/path/to/bidsd_dcm2bids_config_template.json",
+    "OutputBIDSDirectory": "/path/to/bids/directory",
+    "BIDSConfigFile": "/path/to/bidsd_dcm2bids_config_template.json",
     "WorkingDirectory": "/path/to/working/directory",
     "SPMPath": "/path/to/spm"
 }
@@ -120,7 +120,7 @@ Example:
 
 - DICOM Import: 
 
-    You only need to give the DICOM directory path and the module will organize your data in BIDS (using [dcm2bids](https://unfmontreal.github.io/Dcm2Bids)). A [dcm2bids configuration file](https://unfmontreal.github.io/Dcm2Bids/3.1.1/how-to/create-config-file/) should be specified in the `BidsConfigFile` field in the [configuration file](./config/config.json). The BIDS subject name is composed of the DICOM tag (0x10, 0x0010) (patient's name) and the DICOM tag (0x10, 0x0030) (patient's date of birth). The tag (0x08, 0x0020) (study date) is used for the BIDS session name. If you want anonymised data, you will need to anonymise your DICOM before to use this module. 
+    You only need to give the DICOM directory path and the module will organize your data in BIDS (using [dcm2bids](https://unfmontreal.github.io/Dcm2Bids)). A [dcm2bids configuration file](https://unfmontreal.github.io/Dcm2Bids/3.1.1/how-to/create-config-file/) should be specified in the `BIDSConfigFile` field in the [configuration file](./config/config.json). The BIDS subject name is composed of the DICOM tag (0x10, 0x0010) (patient's name) and the DICOM tag (0x10, 0x0030) (patient's date of birth). The tag (0x08, 0x0020) (study date) is used for the BIDS session name. If you want anonymised data, you will need to anonymise your DICOM before to use this module. 
 
     Functionnal run will be renamed following BIDS architecture with the following field for "task" suffix:
     - "gene" for the "génération" task

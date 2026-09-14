@@ -4,6 +4,7 @@ import os
 import shutil
 import sys
 import time
+import re
 from datetime import datetime
 from bids import BIDSLayout
 from PyQt5 import QtWidgets
@@ -17,11 +18,12 @@ from logger import setup_logger
 from bids_conversion import convert_to_bids
 from preprocessing import run_preprocessing
 from config_spm import configure_spm
-from events_files import create_events_files_from_template
 from stats_spm import run_stats
 from create_report import create_report
 from params import get_acquisition_info
 
+GE2REC_TASK = ["gene", "rappel", "reco"]
+CLIN_TASK = ["langAud", "langVis", "mainD", "mainG", "levres", "piedD", "piedG", "clin"]
 
 class ProcessingWorker(QThread):
     progress = pyqtSignal(int)
@@ -107,35 +109,48 @@ class ProcessingWorker(QThread):
 
             self.progress.emit(10)
 
-            # Create directories
+            # Create work directories
             working_directory_tmp = os.path.join(working_directory_tmp, f"{patient_name}_{sess_name}_processing")
             os.makedirs(working_directory_tmp, exist_ok=True)
-            analysis_directory = os.path.join(out_directory, "derivatives", f"sub-{patient_name}", f"ses-{sess_name}")
-            os.makedirs(analysis_directory, exist_ok=True)
+            derivatives_directory = os.path.join(out_directory, "derivatives", f"sub-{patient_name}", f"ses-{sess_name}")
+            os.makedirs(derivatives_directory, exist_ok=True)
 
             # Logger
-            logger = setup_logger(verbose=True, log_file=os.path.join(analysis_directory, f"pipeline_{now}.log"))
+            logger = setup_logger(verbose=True, log_file=os.path.join(derivatives_directory, f"pipeline_GE2REC_{now}.log"))
             logger.info(f"Processing started: {now}")
+
+            # SPM configuration
+            configure_spm(spm_path)
 
             # Get anat and fmri files
             layout = BIDSLayout(out_directory)
             anat_file = layout.get(suffix="T1w", extension=[".nii", ".nii.gz"], subject=patient_name, session=sess_name)[0].path
             fmri_files = [i.path for i in layout.get(suffix="bold", extension=[".nii", ".nii.gz"], subject=patient_name, session=sess_name)]
-            if len(fmri_files) == 0 or len(fmri_files) > 3:
-                raise Exception(f"No fMRI file or more than 3 fMRI files: {fmri_files}")
+            if len(fmri_files) == 0:
+                raise Exception(f"No fMRI file")
+            all_task = []
+            events_files = []
+            fmri_files_ge2rec = []
+            fmri_files_clin = []
+            for fmri_file in fmri_files:
+                task = re.search(r"task-([^_]+)", fmri_file).group(1)
+                if task not in all_task:
+                   all_task.append(task)
+                else:
+                    if task not in ["clin"]:
+                        raise Exception(f"Several files for task {task}")
+                if task in GE2REC_TASK:
+                    fmri_files_ge2rec.append(fmri_file)
+                elif task in CLIN_TASK:
+                    fmri_files_clin.append(fmri_file)
+                
+                events_file = fmri_file.replace("bold.nii.gz", "events.tsv").replace("bold.nii", "events.tsv")
+                if not os.path.exists(events_file):
+                    template = os.path.join(config_path, f"events_task-{task}_template.tsv")
+                    shutil.copy2(template, events_file)
+                events_files.append(events_file)
+       
             self.progress.emit(20)
-
-            # Events files
-            events_files = [i.replace(".nii.gz", ".tsv") for i in fmri_files]
-            if not os.path.exists(events_files[0]):
-                events_files = create_events_files_from_template(config_path, fmri_files)
-
-            # Copy files for preprocessing
-            raw_directory = os.path.join(analysis_directory, "raw")
-            unzip_anat_file = copy_and_unzip_niigz([anat_file], raw_directory)[0]
-            unzip_fmri_files = copy_and_unzip_niigz(fmri_files, raw_directory)
-            preproc_directory = os.path.join(analysis_directory, "spm_preprocessing")
-            os.makedirs(preproc_directory, exist_ok=True)
 
             # Subject info
             subject_info = {
@@ -152,26 +167,52 @@ class ProcessingWorker(QThread):
                 "psychiatric_assessment": psychiatric_assessment,
                 "dominant_hand": dominant_hand,
             }
-            # Acquisition info
-            acq_info = get_acquisition_info(unzip_fmri_files, unzip_anat_file)
+            # GE2REC
+            if fmri_files_ge2rec:
+                # Copy files for preprocessing
+                analysis_directory = os.path.join(derivatives_directory, "GE2REC")
+                os.makedirs(analysis_directory, exist_ok=True)
+                raw_directory = os.path.join(analysis_directory, "raw")
+                unzip_anat_file_ge2rec = copy_and_unzip_niigz([anat_file], raw_directory)[0]
+                unzip_fmri_files_ge2rec = copy_and_unzip_niigz(fmri_files_ge2rec, raw_directory)
+                preproc_directory = os.path.join(analysis_directory, "spm_preprocessing")
+                os.makedirs(preproc_directory, exist_ok=True)
+                # Acquisition info
+                acq_info = get_acquisition_info(unzip_fmri_files_ge2rec, unzip_anat_file_ge2rec)
+                # Preprocessing
+                run_preprocessing(unzip_anat_file_ge2rec, unzip_fmri_files_ge2rec, preproc_directory, working_directory_tmp, acquisition_type, spm_path, acq_info, "ge2rec")
+                self.progress.emit(50)
+                # Stats
+                run_stats(unzip_fmri_files_ge2rec, analysis_directory, working_directory_tmp, acq_info)
+                # Report
+                create_report(analysis_directory, subject_info, acq_info, unzip_fmri_files_ge2rec, unzip_anat_file_ge2rec, "GE2REC-CLIN")
+                shutil.rmtree(raw_directory)
+            
 
-            # SPM configuration
-            configure_spm(spm_path)
-
-            # Preprocessing
-            run_preprocessing(unzip_anat_file, unzip_fmri_files, preproc_directory, working_directory_tmp, acquisition_type, spm_path, acq_info)
-            self.progress.emit(50)
-
-            # Stats
-            run_stats(unzip_fmri_files, analysis_directory, working_directory_tmp, acq_info)
-            self.progress.emit(75)
-
-            # Report
-            create_report(analysis_directory, subject_info, acq_info, unzip_fmri_files, unzip_anat_file)
+            # CLINIQUE CLASSIC
+            if fmri_files_clin:
+                self.progress.emit(75)
+                analysis_directory_clin = os.path.join(derivatives_directory, "FONCTIONNELLE-CLIN")
+                os.makedirs(analysis_directory_clin, exist_ok=True)
+                raw_directory = os.path.join(analysis_directory_clin, "raw")
+                unzip_anat_file_clin = copy_and_unzip_niigz([anat_file], raw_directory)[0]
+                unzip_fmri_files_clin = copy_and_unzip_niigz(fmri_files_clin, raw_directory)
+                preproc_directory_clin = os.path.join(analysis_directory_clin, "spm_preprocessing")
+                os.makedirs(preproc_directory_clin, exist_ok=True)
+                # Acquisition info
+                acq_info_clin = get_acquisition_info(unzip_fmri_files_clin, unzip_anat_file_clin)
+                # Preprocessing
+                run_preprocessing(unzip_anat_file_clin, unzip_fmri_files_clin, preproc_directory_clin, working_directory_tmp, acquisition_type, spm_path, acq_info_clin, "clin")
+                # Stats
+                run_stats(unzip_fmri_files_clin, analysis_directory_clin, working_directory_tmp, acq_info_clin)
+                # Report
+                create_report(analysis_directory_clin, subject_info, acq_info_clin, unzip_fmri_files_clin, unzip_anat_file_clin, "FONCTIONNELLE-CLIN")
+                shutil.rmtree(raw_directory)
+            
+           
             self.progress.emit(100)
 
-            # Remove temp directory and raw directory
-            shutil.rmtree(raw_directory)
+            # Remove temp directory 
             shutil.rmtree(working_directory_tmp)
 
             end = time.time()
