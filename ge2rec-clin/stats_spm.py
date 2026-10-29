@@ -55,7 +55,8 @@ def build_session_info_single_run(
         "rappel":  ["RAPPEL"],
         "langVis": ["LANGAGE"],
         "langAud": ["LANGAGE"],
-        "clin": ["CLIN"]
+        "clin": ["CLIN"],
+        "handmotor": ["MOTOR", "REST"]
     }
 
     if not os.path.exists(events_tsv):
@@ -304,6 +305,15 @@ def run_stats(fmri_files, out_directory, working_dir, acq_info):
                     "type": "T",
                     "conditions": ["CLIN"],
                     "weights": [1]
+                }
+            ]
+        elif task_name in ["handmotor"]:
+            contrast_definitions = [
+                {
+                    "name": "MOTOR vs REST",
+                    "type": "T",
+                    "conditions": ["MOTOR", "REST"],
+                    "weights": [1, -1]
                 }
             ]
 

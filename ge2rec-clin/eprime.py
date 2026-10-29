@@ -10,13 +10,13 @@ logger = logging.getLogger(__name__)
 
 def get_reco_result(input_file, output_file):
 
-
+    logger.info(f"Get reco result from eprime file: {input_file}")
 
     # ============================================================
     # Configuration
     # ============================================================
 
-    if not input_file.endswith(): 
+    if not input_file.endswith(".txt"): 
         logger.info("Cannot used Eprime file")
         return
 
@@ -182,11 +182,11 @@ def get_reco_result(input_file, output_file):
         writer = csv.DictWriter(
             f,
             fieldnames=fieldnames,
-            delimiter=";"
+            delimiter=","
         )
 
         writer.writeheader()
         writer.writerows(results)
 
 
-    print(f"Results saved to: {output_file}")
+    logger.info(f"Results saved to: {output_file}")

@@ -7,6 +7,65 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 from nilearn.image import resample_to_img
 
+SOURCES_DIR = os.path.join(
+            os.path.dirname(os.path.dirname(__file__)), "ROIs"
+        )
+ 
+MASK_RIGHT = os.path.join(SOURCES_DIR , "LI-toolbox", "LI-right.nii")
+MASK_LEFT = os.path.join(SOURCES_DIR , "LI-toolbox", "LI-left.nii")
+
+ROIS_LATERALIZATION = {
+    "temporal":
+        {
+            "path": os.path.join(SOURCES_DIR, "LI-toolbox", "LI-temporal-mask.nii"),
+            "slices": { "ax": 64, "sag": 30, "cor": 86}
+        },
+    "frontal":
+        {
+            "path": os.path.join(SOURCES_DIR, "LI-toolbox", "LI-frontal-mask.nii"),
+            "slices":{ "ax": 62, "sag": 30, "cor": 102}
+        },
+    "middle_frontal_gyrus":
+        {
+            "path": os.path.join(SOURCES_DIR, "HarvardOxford", "HarvardOxford-cort-maxprob-thr25-2mm_3.nii"),
+            "slices": { "ax": 130, "sag": 82, "cor": 135}
+        },
+    "inferior_frontal_gyrus_triangularis": 
+        {
+            "path": os.path.join(SOURCES_DIR, "HarvardOxford", "HarvardOxford-cort-maxprob-thr25-2mm_4.nii"),
+            "slices": { "ax": 115, "sag": 114, "cor": 130}
+        },
+    "inferior_frontal_gyrus_opercularis":
+        {
+            "path": os.path.join(SOURCES_DIR, "HarvardOxford", "HarvardOxford-cort-maxprob-thr25-2mm_5.nii"),
+            "slices": { "ax": 82, "sag": 28, "cor": 140}
+        },
+    "superior_temporal_gyrus_anterior": 
+        {
+            "path": os.path.join(SOURCES_DIR, "HarvardOxford", "HarvardOxford-cort-maxprob-thr25-2mm_8.nii"),
+            "slices": { "ax": 44, "sag": 30, "cor": 120}
+        },
+    "superior_temporal_gyrus_posterior": 
+        {
+            "path": os.path.join(SOURCES_DIR, "HarvardOxford", "HarvardOxford-cort-maxprob-thr25-2mm_9.nii"),
+            "slices": { "ax": 60, "sag": 24, "cor": 110}
+        },
+    "middle_temporal_gyrus_temporooccipital": 
+        {
+            "path": os.path.join(SOURCES_DIR, "HarvardOxford", "HarvardOxford-cort-maxprob-thr25-2mm_12.nii"),
+            "slices": { "ax": 60, "sag": 90, "cor": 138}
+        },
+    "inferior_temporal_gyrus_anterior":
+        {
+            "path": os.path.join(SOURCES_DIR, "HarvardOxford", "HarvardOxford-cort-maxprob-thr25-2mm_13.nii"),
+            "slices": { "ax": 70, "sag": 20, "cor": 60}
+        },
+    "inferior_tempotal_gyrus_posterior": 
+        {
+            "path": os.path.join(SOURCES_DIR, "HarvardOxford", "HarvardOxford-cort-maxprob-thr25-2mm_14.nii"),
+            "slices": { "ax": 28, "sag": 30, "cor": 110}
+        },
+}
 
 
 def lateralization_index_iter_curves(
@@ -192,30 +251,12 @@ def get_lateralization_curves(spmT_file, out_dir):
     os.makedirs(out_dir_LI, exist_ok=True)
     name = os.path.dirname(spmT_file).split('/')[-1] + "_" + os.path.basename(spmT_file).split('.')[0]
     out_png_images = {}
-    sources_rois_dir = os.path.join(
-            os.path.dirname(os.path.dirname(__file__)), "ROIs"
-        )
- 
-    mask_right = os.path.join(sources_rois_dir, "LI-toolbox", "LI-right.nii")
-    mask_left = os.path.join(sources_rois_dir, "LI-toolbox", "LI-left.nii")
-    rois = {
-        "temporal": os.path.join(sources_rois_dir, "LI-toolbox", "LI-temporal-mask.nii"), 
-        "frontal" : os.path.join(sources_rois_dir, "LI-toolbox", "LI-frontal-mask.nii"),
-        "middle_frontal_gyrus": os.path.join(sources_rois_dir, "HardvardOxford", "HarvardOxford-cort-maxprob-thr25-2mm_3.nii"),
-        "inferior_frontal_gyrus_triangularis": os.path.join(sources_rois_dir, "HardvardOxford", "HarvardOxford-cort-maxprob-thr25-2mm_4.nii"),
-        "inferior_frontal_gyrus_opercularis": os.path.join(sources_rois_dir, "HardvardOxford", "HarvardOxford-cort-maxprob-thr25-2mm_5.nii"),
-        "superior_temporal_gyrus_anterior": os.path.join(sources_rois_dir, "HardvardOxford", "HarvardOxford-cort-maxprob-thr25-2mm_8.nii"),
-        "superior_temporal_gyrus_posterior": os.path.join(sources_rois_dir, "HardvardOxford", "HarvardOxford-cort-maxprob-thr25-2mm_9.nii"),
-        "middle_temporal_gyrus_temporooccipital": os.path.join(sources_rois_dir, "HardvardOxford", "HarvardOxford-cort-maxprob-thr25-2mm_12.nii"),
-        "inferior_temporal_gyrus_anterior": os.path.join(sources_rois_dir, "HardvardOxford", "HarvardOxford-cort-maxprob-thr25-2mm_13.nii"),
-        "inferior_tempotal_gyrus_posterior": os.path.join(sources_rois_dir, "HardvardOxford", "HarvardOxford-cort-maxprob-thr25-2mm_14.nii")
-    }
-
-    for roi in list(rois.keys()):
-        mask = rois[roi]
+    
+    for roi in list(ROIS_LATERALIZATION.keys()):
+        mask = ROIS_LATERALIZATION[roi]["path"]
         out_png = os.path.join(out_dir_LI, f"{name}_LI_{roi}.png")
         out_png_images[roi] = out_png
         lateralization_index_iter_curves(
-            spmT_file, mask, mask_right, mask_left, roi, out_png
+            spmT_file, mask, MASK_RIGHT, MASK_LEFT, roi, out_png
         )
     return out_png_images

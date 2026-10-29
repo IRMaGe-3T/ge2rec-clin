@@ -319,17 +319,22 @@ def plot_slice_planes(
     brain_data_1 = brain_img_1.get_fdata()
     brain_data_1 = np.squeeze(brain_data_1)
 
-    if convention == "neurological":
-        left_label = "L"
-        right_label = "R"
-    elif convention == "radiological":
-        left_label = "R"
-        right_label = "L"
-    else:
-        raise ValueError("convention must be 'neurological' or 'radiological'")
+    if convention not in ("neurological", "radiological"):
+        raise ValueError(
+            "convention must be 'neurological' or 'radiological'"
+        )
 
-    if cmap_1 is None:
-        cmap_1 = "Greys_r"
+    if plane in ("ax", "cor"):
+        if convention == "neurological":
+            left_label, right_label = "L", "R"
+        else:
+            left_label, right_label = "R", "L"
+
+    elif plane == "sag":
+        # The horizontal axis represents posterior-anterior.
+        left_label, right_label = "P", "A"
+        if cmap_1 is None:
+            cmap_1 = "Greys_r"
 
     cmap_1 = colormaps.get_cmap(cmap_1)
     cmap_1.set_bad(color="black")
@@ -428,7 +433,14 @@ def plot_slice_planes(
         vmax_1 = np.percentile(brain_data_1[mask_data_1], 99.5)
 
     disp_slices = fig_rows * fig_cols
-    lst = np.arange(start=0, stop=brain_data_1.shape[2], step=1)
+
+    slice_axis = {
+        "ax": 2,
+        "cor": 1,
+        "sag": 0,
+    }[plane]
+
+    lst = np.arange(brain_data_1.shape[slice_axis])
 
     if slice_start:
         # fmt: off
@@ -538,7 +550,6 @@ def plot_slice_planes(
 
         if plane == "ax":
             phys_sp = np.array(zooms[:2]) * brain_data_1[:, :, ind_slice].shape
-           
             data =np.swapaxes(displ_1[:, :, ind_slice], 0, 1)
             if convention == "radiological":
                 data = np.fliplr(data)
@@ -554,8 +565,6 @@ def plot_slice_planes(
         elif plane == "sag":
             phys_sp = np.array(zooms[:2]) * brain_data_1[ind_slice, :, :].shape
             data = np.swapaxes(displ_1[ind_slice, :, :], 0, 1)
-            if convention == "radiological":
-                data = np.fliplr(data)
             ax.imshow(
                 data,
                 vmin=vmin_1,
@@ -600,8 +609,6 @@ def plot_slice_planes(
                     )
                 elif plane == "sag":
                     data = np.swapaxes(displ[ind_slice, :, :], 0, 1)
-                    if convention == "radiological":
-                        data = np.fliplr(data)
                     im2 = ax.imshow(
                         data,
                         vmin=vmin_2[i],
@@ -633,29 +640,7 @@ def plot_slice_planes(
         ax.set_yticklabels([])
         ax.grid(False)
         ax.axis("off")
-        # # --- Add L/R markers ---
-        # ax.text(
-        #     0.02, 0.98,
-        #     left_label,
-        #     transform=ax.transAxes,
-        #     color="white",
-        #     fontsize=fontsize,
-        #     fontweight="bold",
-        #     verticalalignment="top",
-        #     horizontalalignment="left",
-        # )
-
-        # ax.text(
-        #     0.98, 0.98,
-        #     right_label,
-        #     transform=ax.transAxes,
-        #     color="white",
-        #     fontsize=fontsize,
-        #     fontweight="bold",
-        #     verticalalignment="top",
-        #     horizontalalignment="right",
-        # )
-        # ax.set_facecolor('black')
+   
         bgcolor = cmap_1(min(vmin_1, 0.0))
         fgcolor = cmap_1(vmax_1)
 
@@ -675,33 +660,33 @@ def plot_slice_planes(
                 boxstyle="square,pad=0", edgecolor=bgcolor, facecolor=bgcolor
             ),
         )
-        # --- Add L/R markers on outer mosaic axes only ---
-        left_ax = grid[0]                     # premier axe (coin haut gauche)
-        right_ax = grid[fig_cols - 1]         # coin haut droit
+    # --- Add orientation markers on the first row only ---
+    left_ax = grid[0]
+    right_ax = grid[fig_cols - 1]
 
-        left_ax.text(
-            0.02, 0.98,
-            left_label,
-            transform=left_ax.transAxes,
-            color="white",
-            fontsize=fontsize,
-            fontweight="bold",
-            alpha=0.6,
-            ha="left",
-            va="bottom",
-        )
+    left_ax.text(
+        0.02, 0.98,
+        left_label,
+        transform=left_ax.transAxes,
+        color="white",
+        fontsize=fontsize,
+        fontweight="bold",
+        alpha=0.6,
+        ha="left",
+        va="top",
+    )
 
-        right_ax.text(
-            0.98, 0.98,
-            right_label,
-            transform=right_ax.transAxes,
-            color="white",
-            fontsize=fontsize,
-            fontweight="bold",
-            alpha=0.6,
-            ha="right",
-            va="bottom",
-        )
+    right_ax.text(
+        0.98, 0.98,
+        right_label,
+        transform=right_ax.transAxes,
+        color="white",
+        fontsize=fontsize,
+        fontweight="bold",
+        alpha=0.6,
+        ha="right",
+        va="top",
+    )
 
     if brain_data_2 is not None and len(brain_data_2) == 1:
         cbar = grid.cbar_axes[0].colorbar(im2)
@@ -733,6 +718,256 @@ def plot_slice_planes(
 
     fig.savefig(out_file, format="png", dpi=300, bbox_inches="tight")
     plt.close(fig)
+    return out_file
+
+
+def plot_orthogonal_mosaics(
+    data_1,
+    data_2=None,
+    slices=None,
+    cmap_1="gray",
+    vmin_1=None,
+    vmax_1=None,
+    cmap_2="hot",
+    color_2=None,
+    vmin_2=None,
+    vmax_2=None,
+    alpha=0.6,
+    out_dir=None,
+    out_name="orthogonal_mosaics",
+    dpi=200,
+):
+    """
+    Create a PNG containing axial, sagittal and coronal slice mosaics.
+
+    Parameters
+    ----------
+    data_1 : str
+        Path to the background NIfTI image.
+
+    data_2 : str or None
+        Path to the overlay NIfTI image.
+
+    slices : dict or None
+        Slice indices to display in each orientation.
+        Indices refer to the canonical image axes.
+
+        Example:
+        {
+            "ax": 40, ,
+            "sag": 70,
+            "cor": 80
+        }
+
+        If None, the image center are displayed
+        for each orientation.
+
+    cmap_1 : str
+        Background colormap.
+
+    vmin_1, vmax_1 : float or None
+        Background intensity range. If None, percentiles are used.
+
+    cmap_2 : str
+        Overlay colormap.
+
+    color_2 : str
+        Overlay color.
+
+    vmin_2, vmax_2 : float or None
+        Overlay intensity range. If None, percentiles are used.
+
+    alpha : float
+        Overlay transparency, between 0 and 1.
+
+    out_dir : str or None
+        Output directory. Defaults to the directory containing data_1.
+
+    out_name : str
+        Output filename without extension.
+
+    dpi : int
+        PNG resolution.
+
+    Returns
+    -------
+    str
+        Path to the generated PNG file.
+    """
+
+    # --------------------------------------------------
+    # Load images and use a consistent orientation
+    # --------------------------------------------------
+    img_1 = nib.as_closest_canonical(nib.load(data_1))
+    vol_1 = np.squeeze(img_1.get_fdata())
+
+    if vol_1.ndim != 3:
+        raise ValueError("data_1 must contain a 3D image.")
+
+    vol_2 = None
+
+    if data_2 is not None:
+        img_2 = nib.load(data_2)
+
+        # Resample overlay to the background image if necessary
+        if (
+            img_1.shape[:3] != img_2.shape[:3]
+            or not np.allclose(img_1.affine, img_2.affine)
+        ):
+            img_2 = resample_to_img(
+                img_2,
+                img_1,
+                interpolation="continuous",
+            )
+
+        vol_2 = np.squeeze(img_2.get_fdata())
+
+        if vol_2.ndim != 3:
+            raise ValueError("data_2 must contain a 3D image.")
+
+    # --------------------------------------------------
+    # Intensity ranges
+    # --------------------------------------------------
+    valid_1 = vol_1[np.isfinite(vol_1)]
+
+    if vmin_1 is None:
+        vmin_1 = np.percentile(valid_1, 1)
+
+    if vmax_1 is None:
+        vmax_1 = np.percentile(valid_1, 99)
+
+    if vol_2 is not None:
+        valid_2 = vol_2[np.isfinite(vol_2)]
+
+        if vmin_2 is None:
+            vmin_2 = np.percentile(valid_2, 1)
+
+        if vmax_2 is None:
+            vmax_2 = np.percentile(valid_2, 99)
+
+    # --------------------------------------------------
+    # Slice selection
+    # --------------------------------------------------
+    orientations = {
+        "ax": {
+            "title": "Axial",
+            "axis": 2,
+            "extract": lambda vol, i: vol[:, :, i].T,
+        },
+        "sag": {
+            "title": "Sagittal",
+            "axis": 0,
+            "extract": lambda vol, i: vol[i, :, :].T,
+        },
+        "cor": {
+            "title": "Coronal",
+            "axis": 1,
+            "extract": lambda vol, i: vol[:, i, :].T,
+        },
+    }
+
+    if slices is None:
+        slices = {
+            "ax": vol_1.shape[2] // 2,
+            "sag": vol_1.shape[0] // 2,
+            "cor": vol_1.shape[1] // 2,
+        }
+
+    for key, orientation in orientations.items():
+        axis = orientation["axis"]
+        idx = slices[key]
+
+        if not 0 <= idx < vol_1.shape[axis]:
+            raise ValueError(
+                f"Slice index for {key} must be between 0 "
+                f"and {vol_1.shape[axis] - 1}."
+            )
+
+    # --------------------------------------------------
+    # Plot the three mosaics
+    # --------------------------------------------------
+    fig, axes = plt.subplots(
+        1, 3,
+        figsize=(12, 4),
+        facecolor="black",
+    )
+
+    for ax, (key, orientation) in zip(axes, orientations.items()):
+        idx = slices[key]
+        ax.set_facecolor("black")
+        ax.axis("off")
+
+        background = orientation["extract"](vol_1, idx)
+
+        ax.imshow(
+            np.ma.masked_invalid(background),
+            cmap=cmap_1,
+            vmin=vmin_1,
+            vmax=vmax_1,
+            origin="lower",
+            interpolation="nearest",
+        )
+
+        # Overlay
+        if vol_2 is not None:
+            overlay = orientation["extract"](vol_2, idx)
+
+            # Display all non-zero mask voxels
+            mask = np.isfinite(overlay) & (overlay != 0)
+
+            if color_2 is not None:
+                # Single color for all mask labels
+                rgba = np.zeros((*overlay.shape, 4))
+                rgba[mask] = (*plt.matplotlib.colors.to_rgb(color_2), alpha)
+
+                ax.imshow(
+                    rgba,
+                    origin="lower",
+                    interpolation="nearest",
+                )
+
+            else:
+                # Colormap for parametric maps
+                overlay = np.ma.masked_where(
+                    ~mask,
+                    overlay,
+                )
+
+                ax.imshow(
+                    overlay,
+                    cmap=cmap_2,
+                    vmin=vmin_2,
+                    vmax=vmax_2,
+                    alpha=alpha,
+                    origin="lower",
+                    interpolation="nearest",
+                )
+
+        ax.set_title(
+            f"{idx}",
+            color="white",
+        )
+
+    fig.tight_layout()
+    # --------------------------------------------------
+    # Save PNG
+    # --------------------------------------------------
+    if out_dir is None:
+        out_dir = os.path.dirname(os.path.abspath(data_1))
+
+    os.makedirs(out_dir, exist_ok=True)
+
+    out_file = os.path.join(out_dir, f"{out_name}.png")
+
+    fig.savefig(
+        out_file,
+        dpi=dpi,
+        bbox_inches="tight",
+        facecolor="black",
+    )
+
+    plt.close(fig)
+
     return out_file
 
 def plot_realignment_parameters(
@@ -895,11 +1130,21 @@ def plot_realignment_parameters(
     ax.plot(x_values, data_rp[:, :3], label=("X", "Y", "Z"))
     ax.legend(loc="best")
     ax.set_xlim(0, xLim)
-    ax.set_ylim(minTra * 1.1, maxTra * 1.1)
+    #ax.set_ylim(minTra * 1.1, maxTra * 1.1)
+    ax.set_ylim(-3, 3)
+    ax.set_yticks([-3, -2, 0, 2, 3])
     ax.yaxis.grid(True, linestyle="-", which="major", color="grey", alpha=0.5)
     ax.xaxis.grid(True, linestyle="-", which="major", color="grey", alpha=0.5)
     ax.get_yaxis().set_tick_params(direction="out")
     ax.get_xaxis().set_tick_params(direction="out")
+    for threshold in [-2, 2]:
+        ax.axhline(
+            threshold,
+            color="red",
+            linestyle="--",
+            linewidth=1,
+            alpha=0.7,
+        )
     # High resolution: 2000px × 1118px.
     fig.savefig(out_file_tra, format="png", dpi=200)
     # Plot rotation
@@ -910,9 +1155,19 @@ def plot_realignment_parameters(
     ax.plot(x_values, data_rp[:, 3:], label=("Roll", "Pitch", "Yaw"))
     ax.legend(loc="best")
     ax.set_xlim(0, xLim)
-    ax.set_ylim(minRot * 1.1, maxRot * 1.1)
+    #ax.set_ylim(minRot * 1.1, maxRot * 1.1)
+    ax.set_ylim(-3,3)
+    ax.set_yticks([-3, -2, 0, 2, 3])
     ax.yaxis.grid(True, linestyle="-", which="major", color="grey", alpha=0.5)
     ax.xaxis.grid(True, linestyle="-", which="major", color="grey", alpha=0.5)
+    for threshold in [-2, 2]:
+        ax.axhline(
+            threshold,
+            color="red",
+            linestyle="--",
+            linewidth=1,
+            alpha=0.7,
+        )
     # High resolution: 2000px × 1118px.
     fig.savefig(out_file_rot, format="png", dpi=200)
     plt.close(fig)

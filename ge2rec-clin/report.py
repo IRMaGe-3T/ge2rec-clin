@@ -1,3 +1,5 @@
+import pandas as pd
+
 from reportlab.lib.pagesizes import A4
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Image, Table, TableStyle, PageBreak, HRFlowable
@@ -125,20 +127,31 @@ class ClinicalReportBuilder:
         self.elements.append(Spacer(0 * mm, 3 * mm))
         self.elements.append(Paragraph(stats["desc"], self.styles["Normal"]))
         self.elements.append(Spacer(0 * mm, 2 * mm))
-        self.elements.append(Image(stats["axial"], width=177 * mm, height=200 * mm))
+        im = Image(stats["axial"])
+        im._restrictSize(180 * mm, 200 * mm)
+        self.elements.append(im)
         self.elements.append(PageBreak())
         self.elements.append(Paragraph(f"<font size=16 > <b> {stats["title"]} </b> </font>", self.styles["Normal"]))
         self.elements.append(Spacer(0 * mm, 3 * mm))
         self.elements.append(Paragraph(stats["desc"], self.styles["Normal"]))
         self.elements.append(Spacer(0 * mm, 2 * mm))
-        self.elements.append(Image(stats["cor"], width=177 * mm, height=100* mm))
+        im = Image(stats["cor"])
+        im._restrictSize(180 * mm, 200 * mm)
+        self.elements.append(im)
+        self.elements.append(PageBreak())
+        self.elements.append(Paragraph(f"<font size=16 > <b> {stats["title"]} </b> </font>", self.styles["Normal"]))
+        self.elements.append(Spacer(0 * mm, 3 * mm))
+        self.elements.append(Paragraph(stats["desc"], self.styles["Normal"]))
         self.elements.append(Spacer(0 * mm, 2 * mm))
-        self.elements.append(Image(stats["sag"], width=177 * mm, height=100 *mm))
+        im = Image(stats["sag"])
+        im._restrictSize(180 * mm, 200 * mm)
+        self.elements.append(im)
         self.elements.append(PageBreak())
 
 
     def page_lateralization(self):
         png_images_dic = self.inputs.get("lateralization", [])
+        atlas_snap = self.inputs.get("atlas_snap", [])
         if not png_images_dic:
             return
         self.elements.append(Paragraph("<font size=16 > <b> Production langage - Evaluation quantitative </b> </font>", self.styles["Normal"]))
@@ -152,34 +165,58 @@ class ClinicalReportBuilder:
         "existe de faux positifs. Il est fortement conseillé de "\
         "prendre en compte un seuil supérieur à 3. </i>"
         self.elements.append(Paragraph(desc, self.styles["Normal"]))
-        self.elements.append(Spacer(0 * mm, 10 * mm))
+        
         desc = {
             "temporal": "Temporal part",
             "frontal": "Frontal part",
-            "middle_frontal_gyrus": "HardvardOxford - Middle Frontal Gyrus",
-            "inferior_frontal_gyrus_triangularis": "HardvardOxford - Inferior Frontal Gyrus, pars triangularis",
-            "inferior_frontal_gyrus_opercularis": "HardvardOxford - Inferior Frontal Gyrus, pars opercularis",
-            "superior_temporal_gyrus_anterior": "HardvardOxford - Superior Temporal Gyrus, anterior division",
-            "superior_temporal_gyrus_posterior": "HardvardOxford - Superior Temporal Gyrus, posterior division",
-            "middle_temporal_gyrus_temporooccipital": "HardvardOxford - Middle Temporal Gyrus, temporooccipital part",
-            "inferior_temporal_gyrus_anterior": "HardvardOxford - Inferior Temporal Gyrus, anterior division",
-            "inferior_tempotal_gyrus_posterior": "HardvardOxford - Inferior Temporal Gyrus, posterior division"
+            "middle_frontal_gyrus": "Atlas Harvard Oxford - Middle Frontal Gyrus",
+            "inferior_frontal_gyrus_triangularis": "Atlas Harvard Oxford - Inferior Frontal Gyrus, pars triangularis",
+            "inferior_frontal_gyrus_opercularis": "Atlas Harvard Oxford - Inferior Frontal Gyrus, pars opercularis",
+            "superior_temporal_gyrus_anterior": "Atlas Harvard Oxford - Superior Temporal Gyrus, anterior division",
+            "superior_temporal_gyrus_posterior": "Atlas Harvard Oxford - Superior Temporal Gyrus, posterior division",
+            "middle_temporal_gyrus_temporooccipital": "Atlas Harvard Oxford - Middle Temporal Gyrus, temporooccipital part",
+            "inferior_temporal_gyrus_anterior": "Atlas Harvard Oxford - Inferior Temporal Gyrus, anterior division",
+            "inferior_tempotal_gyrus_posterior": "Atlas Harvard Oxford - Inferior Temporal Gyrus, posterior division"
         }
         i = 0
         for roi in list(png_images_dic.keys()):
             i += 1
-            message = Paragraph(f"<b>Région {desc[roi]}:</b>", self.styles["Normal"])
-            im = Image(png_images_dic[roi], 152 * mm, 77 * mm)
+            self.elements.append(Spacer(0 * mm, 8 * mm))
+            message = Paragraph(
+                f"<b>{desc[roi]}</b>",
+                self.styles["Normal"]
+            )
+            image_atlas = Image(atlas_snap[roi])
+            image_atlas._restrictSize(85 * mm, 30 * mm)
+            image_atlas.hAlign = "CENTER"
+            im = Image(png_images_dic[roi])
+            im._restrictSize(130 * mm, 50 * mm)
             im.hAlign = "CENTER"
-            table = [[message], [im]]
-            t = Table(table, colWidths=[160 * mm], rowHeights=[None, 85 * mm])  
-            t.setStyle(TableStyle([("VALIGN", (0, 0), (-1, -1), "MIDDLE")]))
-            t.hAlign = "LEFT"
+            table = [
+                [message, image_atlas],
+                [im, ""]
+            ]
+
+            t = Table(
+                table,
+                colWidths=[45 * mm, 85 * mm],
+                rowHeights=[30 * mm, 50 * mm]
+            )
+
+            t.setStyle(TableStyle([
+                ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
+                ("SPAN", (0, 1), (1, 1)),
+                ("ALIGN", (1, 0), (1, 0), "CENTER"),
+                ("ALIGN", (0, 1), (0, 1), "CENTER"),
+            ]))
+
+            t.hAlign = "CENTER"
             self.elements.append(t)
             self.elements.append(Spacer(0 * mm, 10 * mm))
-            if i % 2 ==0 and i != len(list(png_images_dic.keys())):
+
+            if i % 2 == 0 and i != len(png_images_dic):
                 self.elements.append(PageBreak())
-       
+            
         desc = "<i><b>Réference</b>: LI toolbox - Wilke, Marko, and Karen Lidzba. "\
         "'LI-Tool: A New Toolbox to Assess Lateralization in Functional MR-Data.' Journal of Neuroscience Methods "\
         "163, no. 1 (June 15, 2007): 128–36. https://doi.org/10.1016/j.jneumeth.2007.01.026."\
@@ -188,17 +225,36 @@ class ClinicalReportBuilder:
         self.elements.append(PageBreak())
 
     def page_task_performance(self):
-        perf = self.inputs.get("task_performance")
+        perf = self.inputs.get("reco_result")
         if not perf:
             return
-        self.elements.append(Paragraph("</b> </font>Mémoire reconnaissance - Performance </b> </font>", self.styles["Normal"]))
-        desc = "<font size=10 ><b>Performances comportementales </b> "
-        "(mesurées pendant la tâche de reconnaissance des mots entendus à la tâche précédente à partir d'image)"
-        "</font>"
+        self.elements.append(Paragraph("<font size=16 > <b>  Mémoire reconnaissance - Performance </b> </font>", self.styles["Normal"]))
+        self.elements.append(Spacer(0 * mm, 10 * mm))
+        desc = "<font size=10 > Performances comportementales"\
+        "(mesurées pendant la tâche de reconnaissance des mots entendus à la tâche précédente à partir d'image) </font>"
         self.elements.append(Paragraph(desc, self.styles["Normal"]))
-        table = Table(perf)
-        table.setStyle(TableStyle([("GRID",(0,0),(-1,-1),0.5,colors.black)]))
-        self.elements.append(table)
+        self.elements.append(Spacer(0 * mm, 10 * mm))
+
+        m2 = Paragraph("<font size=10 ><b>% Bonnes réponses</b></font>")
+        m3 = Paragraph("<font size=10 ><b>% Erreurs</b></font>")
+        m4 = Paragraph("<font size=10 ><b>Anciens mots</b></font>")
+        m5 = Paragraph("<font size=10 ><b>Nouveaux mots</b></font>")
+
+        df = pd.read_csv(perf)
+        new_correct = df.loc[df["CONDITION"] == "NEW", "Percent_correct"].iloc[0]
+        new_error = df.loc[df["CONDITION"] == "NEW", "Percent_error"].iloc[0]
+
+        old_correct = df.loc[df["CONDITION"] == "OLD", "Percent_correct"].iloc[0]
+        old_error = df.loc[df["CONDITION"] == "OLD", "Percent_error"].iloc[0]
+
+        behavioural_data = [
+            ["", m2, m3],
+            [m4, old_correct, old_error],
+            [m5, new_correct, new_error],
+        ]
+        t = Table(behavioural_data)
+        t.hAlign = "LEFT"
+        self.elements.append(t)
         self.elements.append(PageBreak())
 
 
@@ -380,7 +436,8 @@ class ClinicalReportBuilder:
 
     def build(self):
         list_task = [v['name'] for v in self.inputs.values() if 'name' in v]
-        
+        task_order = ["gene", "reco", "rappel", "langVis", "langAud", "clin", "handmotor"]
+        list_task.sort(key=lambda x: task_order.index(x) if x in task_order else len(task_order))
         ge2rec = False
         clinic = False
         tittle = ""

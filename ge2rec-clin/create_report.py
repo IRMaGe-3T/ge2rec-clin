@@ -4,11 +4,12 @@ from nilearn import masking
 from nilearn.plotting import plot_carpet
 
 from report import ClinicalReportBuilder
-from useful import plot_slice_planes, plot_realignment_parameters
-from lateralization import get_lateralization_curves
+from useful import plot_slice_planes, plot_realignment_parameters, plot_orthogonal_mosaics
+from lateralization import get_lateralization_curves, ROIS_LATERALIZATION
+from eprime import get_reco_result
 
 
-def create_report(analysis_directory, subject_info, acq_info, fmri_files, anat_file, name):
+def create_report(analysis_directory, subject_info, acq_info, fmri_files, anat_file, name, eprime_file=None):
 
     inputs = {
         "name": name,
@@ -45,11 +46,15 @@ def create_report(analysis_directory, subject_info, acq_info, fmri_files, anat_f
     norm_anat_fig_cols_sag = 5
     norm_anat_inf_slice_start_sag =17
     norm_anat_slices_gap_sag = 8
+    func_fig_rows_sag = 7
+    func_fig_cols_sag = 5
+    func_inf_slice_start_sag =8
+    func_slices_gap_sag = 4
     # c0r fig
-    norm_anat_fig_rows_cor = 3
-    norm_anat_fig_cols_cor = 5
-    norm_anat_inf_slice_start_cor = 17
-    norm_anat_slices_gap_cor = 8
+    func_fig_rows_cor = 6
+    func_fig_cols_cor = 5
+    func_inf_slice_start_cor = 13
+    func_slices_gap_cor = 5
 
     # spmT min-max 
     spmT_vmin = 2.5
@@ -87,6 +92,7 @@ def create_report(analysis_directory, subject_info, acq_info, fmri_files, anat_f
         "axial": anat_ax,
         "sag": anat_sag
     }
+
     for func_run in fmri_files:
         task = re.search(r"task-([^_]+)", func_run).group(1)
         out_dir_task = os.path.join(out_dir, task)
@@ -128,7 +134,7 @@ def create_report(analysis_directory, subject_info, acq_info, fmri_files, anat_f
         carpet = plot_carpet(
             func_run,
             func_mask,
-            t_r=tr / 1000,
+            t_r=tr,
             standardize="zscore_sample",
             title="global patterns over time",
         )
@@ -179,10 +185,10 @@ def create_report(analysis_directory, subject_info, acq_info, fmri_files, anat_f
                 data_1=norm_anat,
                 data_2=spmT,
                 plane="sag",
-                fig_rows=norm_anat_fig_rows_sag,
-                fig_cols=norm_anat_fig_cols_sag,
-                slice_start=norm_anat_inf_slice_start_sag,
-                slice_step=norm_anat_slices_gap_sag,
+                fig_rows=func_fig_rows_sag,
+                fig_cols=func_fig_cols_sag,
+                slice_start=func_inf_slice_start_sag,
+                slice_step=func_slices_gap_sag,
                 cmap_1=norm_anat_cmap,
                 cmap_2=spmT_cmap,
                 vmin_2=spmT_vmin,
@@ -195,10 +201,10 @@ def create_report(analysis_directory, subject_info, acq_info, fmri_files, anat_f
                 data_1=norm_anat,
                 data_2=spmT,
                 plane="cor",
-                fig_rows=norm_anat_fig_rows_cor,
-                fig_cols=norm_anat_fig_cols_cor,
-                slice_start=norm_anat_inf_slice_start_cor,
-                slice_step=norm_anat_slices_gap_cor,
+                fig_rows=func_fig_rows_cor,
+                fig_cols=func_fig_cols_cor,
+                slice_start=func_inf_slice_start_cor,
+                slice_step=func_slices_gap_cor,
                 cmap_1=norm_anat_cmap,
                 cmap_2=spmT_cmap,
                 vmin_2=spmT_vmin,
@@ -212,9 +218,24 @@ def create_report(analysis_directory, subject_info, acq_info, fmri_files, anat_f
             desc = "Activation cérébrales pour la tâche de génération de phrases "\
                 "à partir de mots entendus:"
             # Lateralization
-            out_png_images = get_lateralization_curves(spmT, analysis_directory)
-            inputs["lateralization"] =  out_png_images
+            inputs["lateralization"] =  get_lateralization_curves(spmT, analysis_directory)
             activation = "activation"
+            # snapshot atlas lateralization
+            # Altas snapshot
+            atlas_snap = {}
+            for roi in ROIS_LATERALIZATION:
+                atlas_snap[roi] = plot_orthogonal_mosaics(
+                    data_1=norm_anat,
+                    data_2=ROIS_LATERALIZATION[roi]["path"],
+                    slices=ROIS_LATERALIZATION[roi]["slices"],
+                    cmap_1=norm_anat_cmap,
+                    color_2="blue",
+                    alpha=0.6,
+                    out_dir=out_dir_task,
+                    out_name=f"mosaics_atlas_{roi}",
+                    dpi=200,
+                )
+            inputs["atlas_snap"] = atlas_snap
         elif task == "reco":
             title = "Mémoire reconnaissance - Carte Statistique"
             desc = "Activation cérébrales pour la tâche de mémoire (reconnaissance "\
@@ -259,6 +280,10 @@ def create_report(analysis_directory, subject_info, acq_info, fmri_files, anat_f
             title = "IRMf moteur (levres) - Carte Statistique"
             desc = "Activation cérébrale pour la tâche motrice"
             activation = "moteur"
+        elif task == "handmotor":
+            title = "IRMf moteur (main bilatérale) - Carte Statistique"
+            desc = "Activation cérébrale pour la tâche motrice"
+            activation = "moteur"
         elif task == "clin":
             if "run" in func_name:
                 nb = re.search(r"run-([^_]+)",func_name).group(1)
@@ -284,6 +309,10 @@ def create_report(analysis_directory, subject_info, acq_info, fmri_files, anat_f
             "desc": desc
 
         }
+    if eprime_file:
+        csv_file = os.path.join(analysis_directory, "eprime_reco_result.csv")
+        get_reco_result(eprime_file, csv_file)
+        inputs["reco_result"] = csv_file
 
     builder = ClinicalReportBuilder(
         output_path=report_path,
