@@ -99,7 +99,7 @@ class ClinicalReportBuilder:
         self.elements.append(Spacer(0 * mm, 1 * mm))
         self.elements.append(Paragraph(f"<b>Sclérose hippocampique ?</b> {trad(subj.get("hippo_sclerosis"))}", self.styles["Normal"]))
         self.elements.append(Spacer(0 * mm, 1 * mm))
-        self.elements.append(Paragraph(f"<b>Chirugie du cerveau ?</b> {trad(subj.get("brain_surgery"))}", self.styles["Normal"]))
+        self.elements.append(Paragraph(f"<b>Chirurgie du cerveau ?</b> {trad(subj.get("brain_surgery"))}", self.styles["Normal"]))
         self.elements.append(Spacer(0 * mm, 1 * mm))
         self.elements.append(Paragraph(f"<b>Bilan neuropsy?</b> {trad(subj.get("neuropsych_assessment"))}", self.styles["Normal"]))
         self.elements.append(Spacer(0 * mm, 1 * mm))
@@ -259,44 +259,36 @@ class ClinicalReportBuilder:
 
 
     def page_tasks_description_ge2rec(self):
-        self.elements.append(Paragraph("Protocole GE2REC - Informations", self.styles["Title"]))
+        self.elements.append(Paragraph("Protocole GE2REC - Principe", self.styles["Title"]))
         self.elements.append(Spacer(0 * mm, 5 * mm))
 
         self.elements.append(
             Paragraph(
-                "<font size=12 > Le protocole GE2REC est composé de trois "\
-                "tâches interdépendantes : la génération de phrases avec "\
-                "encodage implicite (GE) et deux tâches de mémoire "\
-                "de rappel (2REC) qui sont la reconnaissance (RECO) "\
-                "et le rappel (RE)<br/> </font>",
+                "<font size=12 > GE2REC est un protocole d’IRM fonctionnelle associant "\
+                "trois tâches complémentaires permettant d’explorer, au niveau individuel, "\
+                "les réseaux cérébraux du langage et de la mémoire et leur interaction (Language–Memory Network). <br/></font>",
                 self.styles["Justify"],
             )
         )
         self.elements.append(Spacer(0 * mm, 4 * mm))
         self.elements.append(
             Paragraph(
-                "<font size=12 > Ce protocole permet de cartographier "\
-                "l’interaction des fonctions du langage et de la mémoire "\
-                "(LMN language memory network) au niveau individuel."\
-                "Il fournit une évaluation exhaustive en incluant "\
-                "des modalités verbales, visuelles et divers processus "\
-                "langagiers et mémoriels. </font>",
+                "<font size=12 > Le protocole comprend une tâche de génération de phrases avec encodage implicite (GE), "\
+                "suivie de deux tâches de mémoire : reconnaissance (RECO) et rappel (RA). "\
+                "Les mêmes informations sont ainsi sollicitées successivement au cours de processus langagiers, "\
+                "d’encodage, de reconnaissance et de récupération mnésique. <br/></font>",
                 self.styles["Justify"],
             )
         )
         self.elements.append(Spacer(0 * mm, 4 * mm))
         self.elements.append(
             Paragraph(
-                "<font size=12 > <b> Première tâche – Stimuli et tâche "\
-                "de génération de phrases avec encodage implicite "\
-                "(GE)</b><br/>"\
-                "Il s'agit d'une séquence en bloc de génération de "\
-                "phrases avec encodage implicite (durée de 7,3 minutes)."\
-                "Les sujets écoutent des mots à travers un casque et doivent "\
-                "générer des phrases de manière implicite. Lors des périodes "\
-                "de contrôle, des pseudo-mots sont diffusés au sujet afin "\
-                "qu’il n’y ait pas de génération. "\
-                "Une croix de fixation apparaît lors des périodes de repos."\
+                "<font size=12 > <b>1. Génération de phrases (GE durée : 7,3 min) : "\
+                "</b><br/>"\
+                "Le patient entend des mots au casque et doit générer mentalement une phrase "\
+                "à partir de chaque mot. La tâche permet de cartographier les régions impliquées "\
+                "dans la production du langage, tout en assurant l’encodage implicite des informations "\
+                "qui seront utilisées lors des tâches de mémoire suivantes."\
                 "</font> ",\
                 self.styles["Justify"]
             )
@@ -305,18 +297,13 @@ class ClinicalReportBuilder:
         self.elements.append(Spacer(0 * mm, 4 * mm))
         self.elements.append(
             Paragraph(
-                "<font size=12 > <b> Deuxième tâche – Reconnaissance (RECO)"\
+                "<font size=12 > <b>2. Reconnaissance (RECO durée : 6,8 min) :"\
                 "</b><br/>"\
-                "La deuxième tâche est un paradigme évènementiel "\
-                "(durée de 6,8min). "\
-                "Des images sont présentées aux sujets selon un mode "\
-                "pseudo-aléatoire de 2,5 secondes. "\
-                "Ils doivent alors indiquer s’ils reconnaissent les images "\
-                "des objets dont les noms ont été diffusés lors de "\
-                "la première tâche GE. Dans le cadre clinique,"\
-                "le choix proposé est binaire. "\
-                "Soit le sujet indique qu’il reconnaît l’image (OLD), "\
-                "soit qu’il s’agit d’un nouvel item (NEW).</font> ",
+                "Des images d’objets sont présentées au patient. Pour chaque image, "\
+                "il indique si l’objet correspond à un mot entendu précédemment (OLD) "\
+                "ou s’il s’agit d’un nouvel item (NEW). Cette tâche explore la mémoire de "\
+                "reconnaissance en modalité visuelle. Cette tache requiert une réponse et "\
+                "permet donc de contrôler la performance des patients.</font> ",
                 self.styles["Normal"],
             )
         )
@@ -324,13 +311,21 @@ class ClinicalReportBuilder:
         self.elements.append(Spacer(0 * mm, 4 * mm))
         self.elements.append(
             Paragraph(
-                "<font size=12 > <b> Troisième tâche – Rappel (RA)</b><br/>" \
-                "La troisième tâche est un paradigme en bloc en modalité "\
-                "auditive (durée de 4,17 minutes). Les participants "\
-                "entendent les mots de la tâche GE et doivent se souvenir "\
-                "de manière explicite des phrases précédemment "\
-                "générées lors de la première tâche.</font> ",
+                "<font size=12 > <b>3. Rappel (RA durée : 4,17 min) :</b><br/>" \
+                "Le patient entend à nouveau les mots présentés lors de la tâche "\
+                "GE et doit se remémorer mentalement la phrase qu’il avait générée. "\
+                "Cette tâche explore la récupération en mémoire et son interaction avec le réseau du langage.</font> ",
                 self.styles["Normal"],
+            )
+        )
+        self.elements.append(Spacer(0 * mm, 4 * mm))
+        self.elements.append(
+            Paragraph(
+                "<font size=12 > <b>GE2REC permet une cartographie individuelle "\
+                "et complémentaire des réseaux du langage et de la mémoire, "\
+                "associée à une évaluation quantitative de leur asymétrie. "\
+                "</b><br/> </font> ",\
+                self.styles["Justify"]
             )
         )
         self.elements.append(PageBreak())

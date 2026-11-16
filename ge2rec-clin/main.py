@@ -36,8 +36,7 @@ class ProcessingWorker(QThread):
         self.params = params
 
     def run(self):
-        #try:
-        if 1==1:
+        try:
             # Get all parameters
             dicom_directory = self.params["dicom_directory"]
             eprime_file = self.params["txt_file"]
@@ -182,34 +181,34 @@ class ProcessingWorker(QThread):
                 # Acquisition info
                 acq_info = get_acquisition_info(unzip_fmri_files_ge2rec, unzip_anat_file_ge2rec)
                 # Preprocessing
-                #run_preprocessing(unzip_anat_file_ge2rec, unzip_fmri_files_ge2rec, preproc_directory, working_directory_tmp, acquisition_type, spm_path, acq_info, "ge2rec")
+                run_preprocessing(unzip_anat_file_ge2rec, unzip_fmri_files_ge2rec, preproc_directory, working_directory_tmp, acquisition_type, spm_path, acq_info, "ge2rec")
                 self.progress.emit(50)
                 # Stats
-                #run_stats(unzip_fmri_files_ge2rec, analysis_directory, working_directory_tmp, acq_info)
+                run_stats(unzip_fmri_files_ge2rec, analysis_directory, working_directory_tmp, acq_info)
                 # Report
                 create_report(analysis_directory, subject_info, acq_info, unzip_fmri_files_ge2rec, unzip_anat_file_ge2rec, "GE2REC-CLIN", eprime_file=eprime_file)
                 shutil.rmtree(raw_directory)
             
 
             # CLINIQUE CLASSIC
-            # if fmri_files_clin:
-            #     self.progress.emit(75)
-            #     analysis_directory_clin = os.path.join(derivatives_directory, "FONCTIONNELLE-CLIN")
-            #     os.makedirs(analysis_directory_clin, exist_ok=True)
-            #     raw_directory = os.path.join(analysis_directory_clin, "raw")
-            #     unzip_anat_file_clin = copy_and_unzip_niigz([anat_file], raw_directory)[0]
-            #     unzip_fmri_files_clin = copy_and_unzip_niigz(fmri_files_clin, raw_directory)
-            #     preproc_directory_clin = os.path.join(analysis_directory_clin, "spm_preprocessing")
-            #     os.makedirs(preproc_directory_clin, exist_ok=True)
-            #     # Acquisition info
-            #     acq_info_clin = get_acquisition_info(unzip_fmri_files_clin, unzip_anat_file_clin)
-            #     # Preprocessing
-            #     run_preprocessing(unzip_anat_file_clin, unzip_fmri_files_clin, preproc_directory_clin, working_directory_tmp, acquisition_type, spm_path, acq_info_clin, "clin")
-            #     # Stats
-            #     run_stats(unzip_fmri_files_clin, analysis_directory_clin, working_directory_tmp, acq_info_clin)
-            #     # Report
-            #     create_report(analysis_directory_clin, subject_info, acq_info_clin, unzip_fmri_files_clin, unzip_anat_file_clin, "FONCTIONNELLE-CLIN")
-            #     shutil.rmtree(raw_directory)
+            if fmri_files_clin:
+                self.progress.emit(75)
+                analysis_directory_clin = os.path.join(derivatives_directory, "FONCTIONNELLE-CLIN")
+                os.makedirs(analysis_directory_clin, exist_ok=True)
+                raw_directory = os.path.join(analysis_directory_clin, "raw")
+                unzip_anat_file_clin = copy_and_unzip_niigz([anat_file], raw_directory)[0]
+                unzip_fmri_files_clin = copy_and_unzip_niigz(fmri_files_clin, raw_directory)
+                preproc_directory_clin = os.path.join(analysis_directory_clin, "spm_preprocessing")
+                os.makedirs(preproc_directory_clin, exist_ok=True)
+                # Acquisition info
+                acq_info_clin = get_acquisition_info(unzip_fmri_files_clin, unzip_anat_file_clin)
+                # Preprocessing
+                run_preprocessing(unzip_anat_file_clin, unzip_fmri_files_clin, preproc_directory_clin, working_directory_tmp, acquisition_type, spm_path, acq_info_clin, "clin")
+                # Stats
+                run_stats(unzip_fmri_files_clin, analysis_directory_clin, working_directory_tmp, acq_info_clin)
+                # Report
+                create_report(analysis_directory_clin, subject_info, acq_info_clin, unzip_fmri_files_clin, unzip_anat_file_clin, "FONCTIONNELLE-CLIN")
+                shutil.rmtree(raw_directory)
             
            
             self.progress.emit(100)
@@ -222,8 +221,8 @@ class ProcessingWorker(QThread):
             logger.info(f"Processing finished in {total_time:.2f} minutes")
             self.finished.emit()
 
-        # except Exception as e:
-        #     self.error_signal.emit(str(e))
+        except Exception as e:
+            self.error_signal.emit(str(e))
 
 class App(QMainWindow):
     """
