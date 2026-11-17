@@ -534,13 +534,6 @@
           <string>History</string>
          </property>
          <layout class="QGridLayout">
-          <item row="0" column="0">
-           <widget class="QLabel" name="label_surgery">
-            <property name="text">
-             <string>Brain surgery:</string>
-            </property>
-           </widget>
-          </item>
           <item row="0" column="1">
            <widget class="QComboBox" name="comboBox_surgery">
             <item>
@@ -563,7 +556,7 @@
           <item row="1" column="0">
            <widget class="QLabel" name="label_neuropsy">
             <property name="text">
-             <string>Neuropsychological assessment:</string>
+             <string>Neuropsychological assessment performed?</string>
             </property>
            </widget>
           </item>
@@ -586,30 +579,11 @@
             </item>
            </widget>
           </item>
-          <item row="2" column="0">
-           <widget class="QLabel" name="label_psy">
+          <item row="0" column="0">
+           <widget class="QLabel" name="label_surgery">
             <property name="text">
-             <string>Psychiatric assessment:</string>
+             <string>History of brain surgery ?</string>
             </property>
-           </widget>
-          </item>
-          <item row="2" column="1">
-           <widget class="QComboBox" name="comboBox_psy">
-            <item>
-             <property name="text">
-              <string>Unknown</string>
-             </property>
-            </item>
-            <item>
-             <property name="text">
-              <string>No</string>
-             </property>
-            </item>
-            <item>
-             <property name="text">
-              <string>Yes</string>
-             </property>
-            </item>
            </widget>
           </item>
          </layout>

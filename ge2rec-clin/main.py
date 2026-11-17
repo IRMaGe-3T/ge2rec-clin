@@ -50,7 +50,6 @@ class ProcessingWorker(QThread):
             hippo_sclerosis = self.params["hippo_sclerosis"]
             brain_surgery = self.params["brain_surgery"]
             neuropsych_assessment = self.params["neuropsych_assessment"]
-            psychiatric_assessment = self.params["psychiatric_assessment"]
             dominant_hand = self.params["dominant_hand"]
             acquisition_type = self.params["acquisition_type"]
             dir_code_path = self.params["dir_code_path"]
@@ -165,7 +164,6 @@ class ProcessingWorker(QThread):
                 "hippo_sclerosis": hippo_sclerosis,
                 "brain_surgery": brain_surgery,
                 "neuropsych_assessment": neuropsych_assessment,
-                "psychiatric_assessment": psychiatric_assessment,
                 "dominant_hand": dominant_hand,
             }
             # GE2REC
@@ -306,7 +304,6 @@ class App(QMainWindow):
             "hippo_sclerosis": self.comboBox_hippo.currentText(),
             "brain_surgery": self.comboBox_surgery.currentText(),
             "neuropsych_assessment": self.comboBox_neuropsy.currentText(),
-            "psychiatric_assessment": self.comboBox_psy.currentText(),
             "acquisition_type": self.comboBox_acquistion_type.currentText(),
             "dir_code_path": self.dir_code_path
         }
