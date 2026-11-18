@@ -3,6 +3,6 @@
     "BidsConfigFile": "/path/to/bidsd_dcm2bids_config_template.json",
     "WorkingDirectory": "/path/to/working/directory",
     "SPMPath": "/path/to/spm",
-    "SPMStandalonePath": "/path/to/spmStandalone",
+    "SPMStandalonePathScript": "/path/to/spmStandalone/run_spm.sh",
     "MCRPath": "/path/to/MRC"
 }

@@ -67,7 +67,7 @@ class ProcessingWorker(QThread):
             working_directory = data["WorkingDirectory"]
             spm_path = data["SPMPath"]
             spm_path = data.get("SPMPath")
-            spm_standalone_path = data.get("SPMStandalonePath")
+            spm_standalone_path_script = data.get("SPMStandalonePathScript")
             mcr_path = data.get("MCRPath")
 
             self.progress.emit(5)
@@ -126,7 +126,7 @@ class ProcessingWorker(QThread):
                         
             configure_spm(
                 spm_path=spm_path,
-                spm_standalone_path=spm_standalone_path,
+                spm_standalone_path=spm_standalone_path_script,
                 mcr_path=mcr_path
             )
 
