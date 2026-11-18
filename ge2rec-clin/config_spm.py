@@ -10,12 +10,16 @@ def configure_spm(spm_path=None, spm_standalone_script_path=None, mcr_path=None)
     """
 
     # Try SPM Standalone first
+    STAND = False
+    MAT = False
+
     if spm_standalone_script_path and os.path.isfile(spm_standalone_script_path):
 
         if not mcr_path or not os.path.isdir(mcr_path):
             print("SPM Standalone found, but MCRPath is missing or invalid.")
         else:
             if os.path.isfile(spm_standalone_script_path):
+                STAND = True
 
                 cmd_spm_stand = f"{spm_standalone_script_path} {mcr_path} script"
                 os.environ["SPMMCRCMD"] = cmd_spm_stand
@@ -27,18 +31,23 @@ def configure_spm(spm_path=None, spm_standalone_script_path=None, mcr_path=None)
                 return
 
     # Fallback to SPM with MATLAB
-    if spm_path and os.path.isdir(spm_path):
-        os.environ.pop("SPMMCRCMD", None)
-        os.environ.pop("FORCE_SPMMCR", None)
-        MatlabCommand.set_default_paths(spm_path)
-        MatlabCommand.set_default_matlab_cmd("matlab -nodesktop -nosplash")
-        print("SPM with MATLAB configuration selected.")
-        print(f"SPM version detected by Nipype: {spm.SPMCommand().version}")
-        return
+    if not STAND:
+        if spm_path and os.path.isdir(spm_path):
+            MAT = True
+            os.environ.pop("SPMMCRCMD", None)
+            os.environ.pop("FORCE_SPMMCR", None)
+            MatlabCommand.set_default_paths(spm_path)
+            MatlabCommand.set_default_matlab_cmd("matlab -nodesktop -nosplash")
+            print("SPM with MATLAB configuration selected.")
+            print(f"SPM version detected by Nipype: {spm.SPMCommand().version}")
+            return
 
-    raise ValueError(
-        "No valid SPM installation found. "
-        f"SPMPath: {spm_path}, "
-        f"SPMStandalonePath: {spm_standalone_script_path}, "
-        f"MCRPath: {mcr_path}"
-    )
+    if not STAND and not MAT:
+
+        raise ValueError(
+            "No valid SPM installation found. "
+            f"SPMPath: {spm_path}, "
+            f"SPMStandalonePath: {spm_standalone_script_path}, "
+            f"MCRPath: {mcr_path}"
+        )
+
