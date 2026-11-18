@@ -1,8 +1,8 @@
 {
-    "OutputDirectory": "/path/to/bids/directory",
-    "BidsConfigFile": "/path/to/bidsd_dcm2bids_config_template.json",
-    "WorkingDirectory": "/path/to/working/directory",
-    "SPMPath": "/path/to/spm",
-    "SPMStandalonePathScript": "/path/to/spmStandalone/run_spm.sh",
-    "MCRPath": "/path/to/MRC"
+    "OutputBIDSDirectory": "/DATA_PROCESSING/emmanuelle/data/GE2REC/GE2REC_clin_bids",
+    "BIDSConfigFile": "/DATA_PROCESSING/emmanuelle/dev/ge2rec-clin/config/bids_dcm2bids_config_template.json",
+    "WorkingDirectory": "/DATA_PROCESSING/emmanuelle/data/GE2REC/GE2REC_clin_bids",
+    "SPMPath": "/APPS/spm_26.10.01/spm",
+    "SPMStandalonePathScript": "/APPS/spm_standalone_26.10.01_Linux/spm_standalone/run_spm26.sh",
+    "MCRPath": "/usr/local/MATLAB/MATLAB_Runtime/R2026a"
 }
