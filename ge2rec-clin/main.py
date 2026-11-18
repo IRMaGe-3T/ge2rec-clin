@@ -66,6 +66,9 @@ class ProcessingWorker(QThread):
             out_directory = data["OutputBIDSDirectory"]
             working_directory = data["WorkingDirectory"]
             spm_path = data["SPMPath"]
+            spm_path = data.get("SPMPath")
+            spm_standalone_path = data.get("SPMStandalonePath")
+            mcr_path = data.get("MCRPath")
 
             self.progress.emit(5)
 
@@ -120,7 +123,12 @@ class ProcessingWorker(QThread):
             logger.info(f"Processing started: {now}")
 
             # SPM configuration
-            configure_spm(spm_path)
+                        
+            configure_spm(
+                spm_path=spm_path,
+                spm_standalone_path=spm_standalone_path,
+                mcr_path=mcr_path
+            )
 
             # Get anat and fmri files
             layout = BIDSLayout(out_directory)

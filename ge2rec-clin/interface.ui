@@ -242,7 +242,7 @@
     <item>
      <widget class="QGroupBox" name="groupBox_txt">
       <property name="title">
-       <string>Eprime file (optional)</string>
+       <string>Eprime file RECO (optional)</string>
       </property>
       <layout class="QHBoxLayout" name="horizontalLayout_txt">
        <item>
