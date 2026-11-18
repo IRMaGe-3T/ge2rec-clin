@@ -19,31 +19,56 @@
   <property name="windowTitle">
    <string>GE2REC - CLINIQUE</string>
   </property>
+
   <widget class="QWidget" name="centralwidget">
-   <layout class="QVBoxLayout" name="mainLayout">
+   <layout class="QVBoxLayout" name="centralLayout">
     <item>
-     <widget class="QLabel" name="label_title">
-      <property name="maximumSize">
-       <size>
-        <width>16777215</width>
-        <height>80</height>
-       </size>
+     <widget class="QScrollArea" name="scrollArea">
+      <property name="widgetResizable">
+       <bool>true</bool>
       </property>
-      <property name="font">
-       <font>
-        <pointsize>18</pointsize>
-        <weight>75</weight>
-        <bold>true</bold>
-       </font>
+      <property name="horizontalScrollBarPolicy">
+       <enum>Qt::ScrollBarAlwaysOff</enum>
       </property>
-      <property name="text">
-       <string>IRM fonctionnelle - CLINIQUE (GE2REC, langage et moteur)</string>
+      <property name="verticalScrollBarPolicy">
+       <enum>Qt::ScrollBarAsNeeded</enum>
       </property>
-      <property name="alignment">
-       <set>Qt::AlignCenter</set>
-      </property>
-     </widget>
-    </item>
+      <widget class="QWidget" name="scrollAreaWidgetContents">
+       <property name="geometry">
+        <rect>
+         <x>0</x>
+         <y>0</y>
+         <width>850</width>
+         <height>1100</height>
+        </rect>
+       </property>
+       <layout class="QVBoxLayout" name="mainLayout">
+
+        <!-- TITLE -->
+        <item>
+         <widget class="QLabel" name="label_title">
+          <property name="maximumSize">
+           <size>
+            <width>16777215</width>
+            <height>80</height>
+           </size>
+          </property>
+          <property name="font">
+           <font>
+            <pointsize>18</pointsize>
+            <weight>75</weight>
+            <bold>true</bold>
+           </font>
+          </property>
+          <property name="text">
+           <string>IRM fonctionnelle - CLINIQUE (GE2REC, langage et moteur)</string>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignCenter</set>
+          </property>
+         </widget>
+        </item>
+    <!-- TABS -->
     <item>
      <widget class="QTabWidget" name="tabWidget">
       <property name="sizePolicy">
@@ -58,15 +83,11 @@
         <height>200</height>
        </size>
       </property>
-      <property name="maximumSize">
-       <size>
-        <width>16777215</width>
-        <height>180</height>
-       </size>
-      </property>
       <property name="currentIndex">
        <number>0</number>
       </property>
+
+      <!-- DICOM TAB -->
       <widget class="QWidget" name="tab_dicom">
        <attribute name="title">
         <string>DICOM Import</string>
@@ -158,6 +179,8 @@
         </item>
        </layout>
       </widget>
+
+      <!-- BIDS TAB -->
       <widget class="QWidget" name="tab_bids">
        <attribute name="title">
         <string>BIDS Import</string>
@@ -196,6 +219,8 @@
       </widget>
      </widget>
     </item>
+
+    <!-- SPACER -->
     <item>
      <spacer name="verticalSpacer_between_tabs_and_acquisition">
       <property name="orientation">
@@ -212,6 +237,8 @@
       </property>
      </spacer>
     </item>
+
+    <!-- EPRIME FILE -->
     <item>
      <widget class="QGroupBox" name="groupBox_txt">
       <property name="title">
@@ -251,6 +278,8 @@
       </layout>
      </widget>
     </item>
+
+    <!-- ACQUISITION INFORMATION -->
     <item>
      <widget class="QGroupBox" name="groupBox_acquisition">
       <property name="title">
@@ -286,12 +315,16 @@
       </layout>
      </widget>
     </item>
+
+    <!-- PATIENT INFORMATION -->
     <item>
      <widget class="QGroupBox" name="groupBox_patient">
       <property name="title">
        <string>Patient Information</string>
       </property>
       <layout class="QVBoxLayout">
+
+       <!-- GENERAL -->
        <item>
         <widget class="QGroupBox" name="groupBox_general">
          <property name="title">
@@ -380,6 +413,8 @@
          </layout>
         </widget>
        </item>
+
+       <!-- PATHOLOGY -->
        <item>
         <widget class="QGroupBox" name="groupBox_pathology">
          <property name="title">
@@ -528,6 +563,8 @@
          </layout>
         </widget>
        </item>
+
+       <!-- HISTORY -->
        <item>
         <widget class="QGroupBox" name="groupBox_history">
          <property name="title">
@@ -589,9 +626,12 @@
          </layout>
         </widget>
        </item>
+
       </layout>
      </widget>
     </item>
+
+    <!-- RUN BUTTON -->
     <item>
      <layout class="QHBoxLayout">
       <item>
@@ -647,23 +687,24 @@
       </item>
      </layout>
     </item>
-    <item>
-     <widget class="QProgressBar" name="progressBar_run"/>
+
+    <!-- PROGRESS BAR -->
+      <item>
+       <widget class="QProgressBar" name="progressBar">
+        <property name="value">
+         <number>0</number>
+        </property>
+       </widget>
+      </item>
+
+       </layout>
+      </widget>
+     </widget>
     </item>
    </layout>
   </widget>
-  <widget class="QMenuBar" name="menubar">
-   <property name="geometry">
-    <rect>
-     <x>0</x>
-     <y>0</y>
-     <width>900</width>
-     <height>24</height>
-    </rect>
-   </property>
-  </widget>
-  <widget class="QStatusBar" name="statusbar"/>
  </widget>
+
  <resources/>
  <connections/>
 </ui>

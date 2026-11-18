@@ -248,9 +248,9 @@ class App(QMainWindow):
 
     def reset_progress_bar(self):
         """Reset progress bar"""
-        self.progressBar_run.setRange(0, 100)
-        self.progressBar_run.setValue(0)
-        self.progressBar_run.setStyleSheet(
+        self.progressBar.setRange(0, 100)
+        self.progressBar.setValue(0)
+        self.progressBar.setStyleSheet(
             "QProgressBar::chunk { background-color: blue; }"
         )
 
@@ -310,7 +310,7 @@ class App(QMainWindow):
 
         # Thread
         self.worker = ProcessingWorker(params)
-        self.worker.progress.connect(self.progressBar_run.setValue)
+        self.worker.progress.connect(self.progressBar.setValue)
         self.worker.finished.connect(self.on_processing_finished)
         self.worker.error_signal.connect(self.error)
 
@@ -327,7 +327,7 @@ class App(QMainWindow):
         """Error function"""
         print(f"Error during processing: {message}")
 
-        self.progressBar_run.setStyleSheet(
+        self.progressBar.setStyleSheet(
             "QProgressBar::chunk { background-color: red; }"
         )
 
